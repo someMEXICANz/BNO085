@@ -1056,3 +1056,77 @@ events:
         
       exitCode: 0
 ...
+
+---
+events:
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:681 (message)"
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:814 (_CUDAToolkit_find_root_dir)"
+      - "CMakeLists.txt:9 (find_package)"
+    message: |
+      Executed nvcc to extract CUDAToolkit information:
+      #$ _NVVM_BRANCH_=nvvm
+      #$ _SPACE_= 
+      #$ _CUDART_=cudart
+      #$ _HERE_=/usr/local/cuda/bin
+      #$ _THERE_=/usr/local/cuda/bin
+      #$ _TARGET_SIZE_=
+      #$ _TARGET_DIR_=
+      #$ _TARGET_DIR_=targets/aarch64-linux
+      #$ TOP=/usr/local/cuda/bin/..
+      #$ CICC_PATH=/usr/local/cuda/bin/../nvvm/bin
+      #$ NVVMIR_LIBRARY_DIR=/usr/local/cuda/bin/../nvvm/libdevice
+      #$ LD_LIBRARY_PATH=/usr/local/cuda/bin/../lib:/usr/local/cuda/lib64:
+      #$ PATH=/usr/local/cuda/bin/../nvvm/bin:/usr/local/cuda/bin:/home/jetson/.local/bin:/usr/local/cuda/bin:/home/jetson/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin:/snap/bin
+      #$ INCLUDES="-I/usr/local/cuda/bin/../targets/aarch64-linux/include"  
+      #$ LIBRARIES=  "-L/usr/local/cuda/bin/../targets/aarch64-linux/lib/stubs" "-L/usr/local/cuda/bin/../targets/aarch64-linux/lib"
+      #$ CUDAFE_FLAGS=
+      #$ PTXAS_FLAGS=
+      nvcc fatal   : Don't know what to do with '__cmake_determine_cuda'
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:685 (message)"
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:814 (_CUDAToolkit_find_root_dir)"
+      - "CMakeLists.txt:9 (find_package)"
+    message: |
+      Parsed CUDAToolkit nvcc location:
+      /usr/local/cuda/bin
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:710 (message)"
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:814 (_CUDAToolkit_find_root_dir)"
+      - "CMakeLists.txt:9 (find_package)"
+    message: |
+      Parsed CUDAToolkit nvcc implicit include information:
+      /usr/local/cuda/targets/aarch64-linux/include
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:724 (message)"
+      - "/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake:814 (_CUDAToolkit_find_root_dir)"
+      - "CMakeLists.txt:9 (find_package)"
+    message: |
+      Parsed CUDAToolkit nvcc implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(\\.[a-z]+)?|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        link line: [cuda-fake-ld   "-L/usr/local/cuda/bin/../targets/aarch64-linux/lib/stubs" "-L/usr/local/cuda/bin/../targets/aarch64-linux/lib"]
+          arg [cuda-fake-ld] ==> ignore
+          arg [-L/usr/local/cuda/bin/../targets/aarch64-linux/lib/stubs] ==> dir [/usr/local/cuda/bin/../targets/aarch64-linux/lib/stubs]
+          arg [-L/usr/local/cuda/bin/../targets/aarch64-linux/lib] ==> dir [/usr/local/cuda/bin/../targets/aarch64-linux/lib]
+        collapse library dir [/usr/local/cuda/bin/../targets/aarch64-linux/lib/stubs] ==> [/usr/local/cuda/targets/aarch64-linux/lib/stubs]
+        collapse library dir [/usr/local/cuda/bin/../targets/aarch64-linux/lib] ==> [/usr/local/cuda/targets/aarch64-linux/lib]
+        implicit libs: []
+        implicit objs: []
+        implicit dirs: [/usr/local/cuda/targets/aarch64-linux/lib/stubs;/usr/local/cuda/targets/aarch64-linux/lib]
+        implicit fwks: []
+      
+      /usr/local/cuda/targets/aarch64-linux/lib/stubs;/usr/local/cuda/targets/aarch64-linux/lib
+      
+...

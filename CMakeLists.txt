@@ -5,15 +5,13 @@ project(BNO085)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find Open3D
-find_package(Open3D REQUIRED)
-
 # Find CUDA (if Open3D was built with CUDA)
 find_package(CUDAToolkit)
 
 
 include_directories(CameraTest PRIVATE
     ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/sh2
 )
 
 
@@ -28,7 +26,6 @@ add_executable(BNO085
 
 
 # Link Open3D
-target_link_libraries(BNO085 Open3D::Open3D)
 target_include_directories(BNO085 PRIVATE ${Open3D_INCLUDE_DIRS})
 
 # If CUDA is available, link CUDA runtime

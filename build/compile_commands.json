@@ -1,0 +1,26 @@
+[
+{
+  "directory": "/home/jetson/Desktop/BNO085/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/CameraTest -I/home/jetson/Desktop/BNO085/PRIVATE -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/include/sh2 -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/main.cpp.o -c /home/jetson/Desktop/BNO085/src/main.cpp",
+  "file": "/home/jetson/Desktop/BNO085/src/main.cpp",
+  "output": "CMakeFiles/BNO085.dir/src/main.cpp.o"
+},
+{
+  "directory": "/home/jetson/Desktop/BNO085/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/CameraTest -I/home/jetson/Desktop/BNO085/PRIVATE -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/include/sh2 -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_HAL.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_HAL.cpp",
+  "file": "/home/jetson/Desktop/BNO085/src/I2C_HAL.cpp",
+  "output": "CMakeFiles/BNO085.dir/src/I2C_HAL.cpp.o"
+},
+{
+  "directory": "/home/jetson/Desktop/BNO085/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/CameraTest -I/home/jetson/Desktop/BNO085/PRIVATE -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/include/sh2 -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_Device.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_Device.cpp",
+  "file": "/home/jetson/Desktop/BNO085/src/I2C_Device.cpp",
+  "output": "CMakeFiles/BNO085.dir/src/I2C_Device.cpp.o"
+},
+{
+  "directory": "/home/jetson/Desktop/BNO085/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/CameraTest -I/home/jetson/Desktop/BNO085/PRIVATE -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/include/sh2 -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/BNO085.cpp.o -c /home/jetson/Desktop/BNO085/src/BNO085.cpp",
+  "file": "/home/jetson/Desktop/BNO085/src/BNO085.cpp",
+  "output": "CMakeFiles/BNO085.dir/src/BNO085.cpp.o"
+}
+]
