@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Find CUDA (if needed)
 find_package(CUDAToolkit)
 
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GPIOD REQUIRED libgpiod)
+
 # Fetch sh2 library
 include(FetchContent)
 FetchContent_Declare(
@@ -32,11 +35,13 @@ add_executable(BNO085
 target_include_directories(BNO085 PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${sh2_SOURCE_DIR}  # This points to the fetched content
+    ${GPIOD_INCLUDE_DIRS}
 )
 
 # Link libraries
 target_link_libraries(BNO085 PRIVATE
-    sh2_lib  # Added: link the sh2 library!
+    sh2_lib 
+    ${GPIOD_LIBRARIES}
 )
 
 # If CUDA is available, link CUDA runtime

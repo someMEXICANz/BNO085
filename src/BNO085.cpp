@@ -58,16 +58,132 @@ BNO085::BNO085()
     : BNO085("/dev/i2c-1", 0x4A) {
 }
 
-BNO085::BNO085(const std::string& i2c_bus, uint8_t i2c_address)
+BNO085::BNO085(const std::string& i2c_bus, uint8_t i2c_address, ResetPin reset_pin)
     : hal_(nullptr)
     , i2c_bus_(i2c_bus)
     , i2c_address_(i2c_address)
+    , reset_pin_(reset_pin)
+    , gpio_chip_(nullptr)
+    , gpio_line_(nullptr)
     , initialized_(false)
-    , service_running_(false) {
+    , service_running_(false) 
+    , reset_occurred_(false) {
+
+        if (!isValidResetPin(reset_pin)) {
+        std::cerr << "Warning: Invalid reset pin specified. Hardware reset disabled." << std::endl;
+        reset_pin_ = ResetPin::NONE;
+    }
 }
 
 BNO085::~BNO085() {
     shutdown();
+}
+
+
+
+
+// =============================================================================
+// GPIO HELPER METHODS
+// =============================================================================
+
+bool BNO085::isValidResetPin(ResetPin pin) const {
+    // Check if pin is in valid range (not NONE)
+    int pin_value = static_cast<int>(pin);
+    return pin_value >= 0;  // All enum values >= 0 are valid GPIO numbers
+}
+
+bool BNO085::initializeGPIO() {
+    if (reset_pin_ == ResetPin::NONE) {
+        return false;  // No GPIO configured
+    }
+    
+    std::cout << "Initializing GPIO for hardware reset..." << std::endl;
+    
+    // Open GPIO chip
+    gpio_chip_ = gpiod_chip_open_by_name(GPIO_CHIP_NAME);
+    if (!gpio_chip_) {
+        setError("Failed to open GPIO chip: " + std::string(GPIO_CHIP_NAME));
+        return false;
+    }
+    
+    // Get GPIO line
+    unsigned int line_offset = static_cast<unsigned int>(reset_pin_);
+    gpio_line_ = gpiod_chip_get_line(gpio_chip_, line_offset);
+    if (!gpio_line_) {
+        setError("Failed to get GPIO line " + std::to_string(line_offset));
+        gpiod_chip_close(gpio_chip_);
+        gpio_chip_ = nullptr;
+        return false;
+    
+    }
+    
+    // Request line as output, starting HIGH (inactive reset)
+    int ret = gpiod_line_request_output(gpio_line_, "BNO085-RST", 1);
+    if (ret < 0) {
+        setError("Failed to request GPIO line as output. Try running with sudo or add user to gpio group.");
+        gpiod_chip_close(gpio_chip_);
+        gpio_chip_ = nullptr;
+        gpio_line_ = nullptr;
+        return false;
+    }
+    
+    std::cout << "GPIO initialized: " << GPIO_CHIP_NAME 
+              << " line " << line_offset << " (Pin " 
+              << static_cast<int>(reset_pin_) << ")" << std::endl;
+    
+    return true;
+}
+
+void BNO085::releaseGPIO() {
+    if (gpio_line_) {
+        gpiod_line_release(gpio_line_);
+        gpio_line_ = nullptr;
+    }
+    
+    if (gpio_chip_) {
+        gpiod_chip_close(gpio_chip_);
+        gpio_chip_ = nullptr;
+    }
+}
+
+bool BNO085::hardwareReset() {
+    if (!gpio_line_) {
+        setError("No GPIO configured for hardware reset");
+        return false;
+    }
+    
+    std::cout << "Performing hardware reset..." << std::endl;
+    
+    // Reset sequence: HIGH -> LOW (100ms) -> HIGH
+    // Most reset pins are active-low
+    
+    // Ensure we start HIGH
+    if (gpiod_line_set_value(gpio_line_, 1) < 0) {
+        setError("Failed to set GPIO HIGH");
+        return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    
+    // Pull LOW (activate reset)
+    if (gpiod_line_set_value(gpio_line_, 0) < 0) {
+        setError("Failed to set GPIO LOW");
+        return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    // Release reset (back to HIGH)
+    if (gpiod_line_set_value(gpio_line_, 1) < 0) {
+        setError("Failed to set GPIO HIGH");
+        return false;
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    
+    std::cout << "Hardware reset complete" << std::endl;
+    
+    // Additional delay for device to stabilize
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    
+    return true;
 }
 
 // =============================================================================
@@ -80,6 +196,19 @@ bool BNO085::initialize() {
     }
     
     std::cerr << "Initializing BNO085 sensor..." << std::endl;
+
+      // Initialize GPIO if reset pin configured
+    if (reset_pin_ != ResetPin::NONE) {
+        if (initializeGPIO()) {
+            // Perform hardware reset
+            if (!hardwareReset()) {
+                std::cerr << "Warning: Hardware reset failed, continuing anyway..." << std::endl;
+            }
+        } else {
+            std::cerr << "Warning: GPIO initialization failed. Hardware reset unavailable." << std::endl;
+            std::cerr << "  Tip: Run with sudo or add user to gpio group: sudo usermod -a -G gpio $USER" << std::endl;
+        }
+    }
     
     // Create HAL
     hal_ = createI2CHAL(i2c_bus_.c_str(), i2c_address_);
@@ -604,6 +733,7 @@ void BNO085::handleAsyncEvent(sh2_AsyncEvent_t* event) {
     switch (event->eventId) {
         case SH2_RESET:
             std::cerr << "BNO085: Reset complete" << std::endl;
+            reset_occurred_ = true;
             break;
             
         case SH2_GET_FEATURE_RESP:
@@ -706,3 +836,12 @@ void BNO085::updateOrientationData(const sh2_SensorValue_t& value) {
         }
     }
 }
+
+
+bool BNO085::wasReset() {
+    std::lock_guard<std::mutex> lock(data_mutex_);
+    bool result = reset_occurred_;
+    reset_occurred_ = false;  // Clear flag
+    return result;
+}
+
