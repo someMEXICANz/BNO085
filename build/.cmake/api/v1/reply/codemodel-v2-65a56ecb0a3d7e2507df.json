@@ -15,7 +15,8 @@
 					"source" : ".",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				}
 			],
@@ -30,7 +31,8 @@
 					"name" : "BNO085",
 					"targetIndexes" : 
 					[
-						0
+						0,
+						1
 					]
 				}
 			],
@@ -39,8 +41,15 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "BNO085::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-BNO085-Debug-18a330e947b7ce8c245b.json",
+					"jsonFile" : "target-BNO085-Debug-960ddb5d70e2407c8350.json",
 					"name" : "BNO085",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "sh2_lib::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-sh2_lib-Debug-ba62c0fe58381182cd63.json",
+					"name" : "sh2_lib",
 					"projectIndex" : 0
 				}
 			]

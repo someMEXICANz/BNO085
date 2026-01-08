@@ -456,6 +456,26 @@ CUDA_nvrtc_static_LIBRARY:FILEPATH=/usr/local/cuda-12.6/targets/aarch64-linux/li
 //Path to a library.
 CUDA_pcsamplingutil_LIBRARY:FILEPATH=/usr/local/cuda-12.6/targets/aarch64-linux/lib/libpcsamplingutil.so
 
+//Directory under which to collect all populated content
+FETCHCONTENT_BASE_DIR:PATH=/home/jetson/Desktop/BNO085/build/_deps
+
+//Disables all attempts to download or update content and assumes
+// source dirs already exist
+FETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF
+
+//Enables QUIET option for all content population
+FETCHCONTENT_QUIET:BOOL=ON
+
+//When not empty, overrides where to find pre-populated content
+// for sh2
+FETCHCONTENT_SOURCE_DIR_SH2:PATH=
+
+//Enables UPDATE_DISCONNECTED behavior for all content population
+FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of sh2
+FETCHCONTENT_UPDATES_DISCONNECTED_SH2:BOOL=OFF
+
 //Path to a file.
 FREETYPE_INCLUDE_DIR_freetype2:PATH=/usr/include/freetype2
 
@@ -473,6 +493,9 @@ Fontconfig_INCLUDE_DIR:PATH=/usr/include
 
 //Path to a library.
 Fontconfig_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libfontconfig.so
+
+//Git command line client
+GIT_EXECUTABLE:FILEPATH=/usr/bin/git
 
 //Value Computed by CMake
 Open3DTest_BINARY_DIR:STATIC=/home/jetson/Desktop/BNO085/build
@@ -1266,6 +1289,8 @@ FREETYPE_LIBRARY_RELEASE-ADVANCED:INTERNAL=1
 Fontconfig_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: Fontconfig_LIBRARY
 Fontconfig_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: GIT_EXECUTABLE
+GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 OpenMP_COMPILE_RESULT_CXX_fopenmp:INTERNAL=TRUE
 //Result of TRY_COMPILE
