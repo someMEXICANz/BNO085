@@ -1,0 +1,3 @@
+[submodule "include/sh2"]
+	path = include/sh2
+	url = https://github.com/ceva-dsp/sh2.git
