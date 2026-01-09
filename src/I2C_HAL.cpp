@@ -64,6 +64,30 @@ static int i2cHalOpen(sh2_Hal_t* self) {
     hal->deviceOpen = true;
     
     std::cout << "I2C HAL opened successfully" << std::endl;
+
+    // Send soft reset command to ensure clean state
+    std::cout << "Sending soft reset command..." << std::endl;
+    uint8_t softreset_pkt[] = {5, 0, 1, 0, 1};
+    
+    int retries = 3;
+    bool reset_success = false;
+    
+    for (int i = 0; i < retries && !reset_success; i++) {
+        if (hal->i2c->writeRaw(softreset_pkt, sizeof(softreset_pkt))) {
+            reset_success = true;
+        } else {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+    }
+    
+    if (reset_success) {
+        std::cout << "Soft reset sent successfully" << std::endl;
+        // Wait for sensor to reset
+        std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    } else {
+        std::cout << "Warning: Soft reset failed (continuing anyway)" << std::endl;
+    }
+    
     return SH2_OK;
 }
 
@@ -79,6 +103,7 @@ static void i2cHalClose(sh2_Hal_t* self) {
     
     std::cout << "I2C HAL closed" << std::endl;
 }
+
 
 static int i2cHalRead(sh2_Hal_t* self, uint8_t* pBuffer, unsigned len, uint32_t* t_us) {
     I2CHAL_t* hal = (I2CHAL_t*)self;

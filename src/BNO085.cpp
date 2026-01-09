@@ -92,6 +92,8 @@ bool BNO085::isValidResetPin(ResetPin pin) const {
     return pin_value >= 0;  // All enum values >= 0 are valid GPIO numbers
 }
 
+
+
 bool BNO085::initializeGPIO() {
     if (reset_pin_ == ResetPin::NONE) {
         return false;  // No GPIO configured
@@ -154,8 +156,21 @@ bool BNO085::hardwareReset() {
     
     std::cout << "Performing hardware reset..." << std::endl;
     
+    // Step 1: Stop service thread if running
+    bool was_service_running = service_running_;
+    if (was_service_running) {
+        std::cout << "Stopping service thread for reset..." << std::endl;
+        stopService();
+    }
+    
+    // Step 2: Close SH2 library to clean up state
+    if (initialized_) {
+        std::cout << "Closing SH2 library..." << std::endl;
+        sh2_close();
+    }
+    
+    // Step 3: Perform hardware reset sequence
     // Reset sequence: HIGH -> LOW (100ms) -> HIGH
-    // Most reset pins are active-low
     
     // Ensure we start HIGH
     if (gpiod_line_set_value(gpio_line_, 1) < 0) {
@@ -176,12 +191,35 @@ bool BNO085::hardwareReset() {
         setError("Failed to set GPIO HIGH");
         return false;
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
     
-    std::cout << "Hardware reset complete" << std::endl;
+    std::cout << "Hardware reset complete, waiting for device to stabilize..." << std::endl;
     
-    // Additional delay for device to stabilize
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // Step 4: Wait for device to fully boot
+    std::this_thread::sleep_for(std::chrono::milliseconds(300));
+    
+    // Step 5: Reinitialize SH2 library
+    if (initialized_) {
+        std::cout << "Reinitializing SH2 library..." << std::endl;
+        int result = sh2_open(hal_, eventCallbackWrapper, this);
+        if (result != SH2_OK) {
+            setError("Failed to reopen SH2 library after reset: " + sh2ErrorToString(result));
+            return false;
+        }
+        
+        // Re-register sensor callback
+        sh2_setSensorCallback(sensorCallbackWrapper, this);
+        
+        // Wait a moment for initialization
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+    
+    // Step 6: Restart service thread if it was running
+    if (was_service_running) {
+        std::cout << "Restarting service thread..." << std::endl;
+        startService();
+    }
+    
+    std::cout << "Hardware reset and reinitialization complete" << std::endl;
     
     return true;
 }

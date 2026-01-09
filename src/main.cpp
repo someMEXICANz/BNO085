@@ -14,20 +14,39 @@ int main() {
         return 1;
     }
 
-    
-    
-    if (sensor.hardwareReset()) {
-        std::cout << "✓ Hardware reset is working!" << std::endl;
-    }
-
     sensor.startService();
 
-    while(true)
-    {
 
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    std::cout << "Retrieving Sensor info in" << std::endl;
+    for(int i = 0; i < 5; i++) 
+    {
+        std::cout << 5 - i << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    std::cout << sensor.getProductInfo() << std::endl;
+
+
     
-    //std::cout << sensor.getProductInfo() << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    std::cout << "Resetting sensor via hardware pin in " << std::endl;
+    for(int i = 0; i < 5; i++) 
+    {
+        std::cout << 5 - i << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+    }
+    sensor.hardwareReset();
+    std::cout << "Reset command issued." << std::endl;
+    
+   
+    std::this_thread::sleep_for(std::chrono::seconds(5));
+
+    // while (true) {
+    //     //std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
     
     return 0;
 }
