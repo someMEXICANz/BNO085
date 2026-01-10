@@ -83,7 +83,7 @@ BNO085::~BNO085() {
 
 
 // =============================================================================
-// GPIO HELPER METHODS
+// GPIO METHODS
 // =============================================================================
 
 bool BNO085::isValidResetPin(ResetPin pin) const {
@@ -98,8 +98,6 @@ bool BNO085::initializeGPIO() {
     if (reset_pin_ == ResetPin::NONE) {
         return false;  // No GPIO configured
     }
-    
-    std::cout << "Initializing GPIO for hardware reset..." << std::endl;
     
     // Open GPIO chip
     gpio_chip_ = gpiod_chip_open_by_name(GPIO_CHIP_NAME);
@@ -122,16 +120,16 @@ bool BNO085::initializeGPIO() {
     // Request line as output, starting HIGH (inactive reset)
     int ret = gpiod_line_request_output(gpio_line_, "BNO085-RST", 1);
     if (ret < 0) {
-        setError("Failed to request GPIO line as output. Try running with sudo or add user to gpio group.");
+        setError("Failed to request GPIO line as output");
         gpiod_chip_close(gpio_chip_);
         gpio_chip_ = nullptr;
         gpio_line_ = nullptr;
         return false;
     }
     
-    std::cout << "GPIO initialized: " << GPIO_CHIP_NAME 
-              << " line " << line_offset << " (Pin " 
-              << static_cast<int>(reset_pin_) << ")" << std::endl;
+    // std::cout << "GPIO initialized: " << GPIO_CHIP_NAME 
+    //           << " line " << line_offset << " (Pin " 
+    //           << static_cast<int>(reset_pin_) << ")" << std::endl;
     
     return true;
 }
@@ -238,13 +236,12 @@ bool BNO085::initialize() {
       // Initialize GPIO if reset pin configured
     if (reset_pin_ != ResetPin::NONE) {
         if (initializeGPIO()) {
-            // Perform hardware reset
-            if (!hardwareReset()) {
-                std::cerr << "Warning: Hardware reset failed, continuing anyway..." << std::endl;
-            }
+            // // Perform hardware reset
+            // if (!hardwareReset()) {
+            //     std::cerr << "Warning: Hardware reset failed, continuing anyway..." << std::endl;
+            // }
         } else {
             std::cerr << "Warning: GPIO initialization failed. Hardware reset unavailable." << std::endl;
-            std::cerr << "  Tip: Run with sudo or add user to gpio group: sudo usermod -a -G gpio $USER" << std::endl;
         }
     }
     

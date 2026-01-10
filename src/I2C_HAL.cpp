@@ -40,7 +40,7 @@ static void setHalError(I2CHAL_t* hal, const std::string& error);
 static int i2cHalOpen(sh2_Hal_t* self) {
     I2CHAL_t* hal = (I2CHAL_t*)self;
     
-    std::cout << "Opening I2C HAL..." << std::endl;
+    // std::cout << "Opening I2C HAL..." << std::endl;
     
     // Open I2C device
     if (!hal->i2c->open()) {
@@ -63,10 +63,10 @@ static int i2cHalOpen(sh2_Hal_t* self) {
     // Initialize state
     hal->deviceOpen = true;
     
-    std::cout << "I2C HAL opened successfully" << std::endl;
+    // std::cout << "I2C HAL opened successfully" << std::endl;
 
     // Send soft reset command to ensure clean state
-    std::cout << "Sending soft reset command..." << std::endl;
+    //std::cout << "Sending soft reset command..." << std::endl;
     uint8_t softreset_pkt[] = {5, 0, 1, 0, 1};
     
     int retries = 3;
@@ -81,7 +81,7 @@ static int i2cHalOpen(sh2_Hal_t* self) {
     }
     
     if (reset_success) {
-        std::cout << "Soft reset sent successfully" << std::endl;
+        //std::cout << "Soft reset sent successfully" << std::endl;
         // Wait for sensor to reset
         std::this_thread::sleep_for(std::chrono::milliseconds(300));
     } else {
