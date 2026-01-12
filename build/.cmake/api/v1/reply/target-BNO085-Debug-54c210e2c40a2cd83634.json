@@ -1,0 +1,1066 @@
+{
+	"artifacts" : 
+	[
+		{
+			"path" : "BNO085"
+		}
+	],
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_executable",
+			"target_link_libraries",
+			"set_target_properties",
+			"include",
+			"find_package",
+			"set_property",
+			"find_dependency",
+			"_CUDAToolkit_find_and_add_import_lib",
+			"include_directories",
+			"target_include_directories"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt",
+			"/usr/local/lib/cmake/Open3D/Open3DTargets.cmake",
+			"/usr/local/lib/cmake/Open3D/Open3DConfig.cmake",
+			"/usr/local/share/cmake-3.31/Modules/FindOpenMP.cmake",
+			"/usr/local/share/cmake-3.31/Modules/CMakeFindDependencyMacro.cmake",
+			"/usr/local/lib/cmake/realsense2/realsense2Targets.cmake",
+			"/usr/local/lib/cmake/realsense2/realsense2Config.cmake",
+			"/usr/local/share/cmake-3.31/Modules/FindCUDAToolkit.cmake"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 30,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 47,
+				"parent" : 0
+			},
+			{
+				"command" : 1,
+				"file" : 0,
+				"line" : 55,
+				"parent" : 0
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 8,
+				"parent" : 0
+			},
+			{
+				"file" : 2,
+				"parent" : 4
+			},
+			{
+				"command" : 3,
+				"file" : 2,
+				"line" : 28,
+				"parent" : 5
+			},
+			{
+				"file" : 1,
+				"parent" : 6
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 68,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 120,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 127,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 352,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 161,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 154,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 176,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 168,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 227,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 274,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 285,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 293,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 301,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 315,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 337,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 344,
+				"parent" : 7
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 25,
+				"parent" : 5
+			},
+			{
+				"command" : 4,
+				"file" : 4,
+				"line" : 76,
+				"parent" : 24
+			},
+			{
+				"file" : 3,
+				"parent" : 25
+			},
+			{
+				"command" : 5,
+				"file" : 3,
+				"line" : 655,
+				"parent" : 26
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 147,
+				"parent" : 7
+			},
+			{
+				"command" : 6,
+				"file" : 2,
+				"line" : 25,
+				"parent" : 5
+			},
+			{
+				"command" : 4,
+				"file" : 4,
+				"line" : 76,
+				"parent" : 29
+			},
+			{
+				"file" : 6,
+				"parent" : 30
+			},
+			{
+				"command" : 3,
+				"file" : 6,
+				"line" : 35,
+				"parent" : 31
+			},
+			{
+				"file" : 5,
+				"parent" : 32
+			},
+			{
+				"command" : 2,
+				"file" : 5,
+				"line" : 85,
+				"parent" : 33
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 323,
+				"parent" : 7
+			},
+			{
+				"command" : 4,
+				"file" : 0,
+				"line" : 7,
+				"parent" : 0
+			},
+			{
+				"file" : 7,
+				"parent" : 36
+			},
+			{
+				"command" : 7,
+				"file" : 7,
+				"line" : 1309,
+				"parent" : 37
+			},
+			{
+				"command" : 1,
+				"file" : 7,
+				"line" : 1198,
+				"parent" : 38
+			},
+			{
+				"command" : 1,
+				"file" : 7,
+				"line" : 1198,
+				"parent" : 38
+			},
+			{
+				"command" : 7,
+				"file" : 7,
+				"line" : 1260,
+				"parent" : 37
+			},
+			{
+				"command" : 1,
+				"file" : 7,
+				"line" : 1198,
+				"parent" : 41
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 330,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 112,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 82,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 237,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 259,
+				"parent" : 7
+			},
+			{
+				"command" : 2,
+				"file" : 1,
+				"line" : 267,
+				"parent" : 7
+			},
+			{
+				"command" : 8,
+				"file" : 0,
+				"line" : 13,
+				"parent" : 0
+			},
+			{
+				"command" : 9,
+				"file" : 0,
+				"line" : 39,
+				"parent" : 0
+			}
+		]
+	},
+	"compileGroups" : 
+	[
+		{
+			"compileCommandFragments" : 
+			[
+				{
+					"fragment" : "-g -std=gnu++14"
+				}
+			],
+			"defines" : 
+			[
+				{
+					"backtrace" : 2,
+					"define" : "FMT_HEADER_ONLY=0"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "FMT_STRING_ALIAS=1"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "FMT_USE_WINDOWS_H=0"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "OPEN3D_STATIC"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "_GLIBCXX_USE_CXX11_ABI=1"
+				}
+			],
+			"includes" : 
+			[
+				{
+					"backtrace" : 49,
+					"path" : "/usr/include/eigen3"
+				},
+				{
+					"backtrace" : 50,
+					"path" : "/home/jetson/Desktop/BNO085/include"
+				},
+				{
+					"backtrace" : 50,
+					"path" : "/home/jetson/Desktop/BNO085/build/_deps/sh2-src"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/usr/local/include/open3d/3rdparty"
+				},
+				{
+					"backtrace" : 3,
+					"isSystem" : true,
+					"path" : "/usr/local/cuda/targets/aarch64-linux/include"
+				}
+			],
+			"language" : "CXX",
+			"languageStandard" : 
+			{
+				"backtraces" : 
+				[
+					2
+				],
+				"standard" : "14"
+			},
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4
+			]
+		}
+	],
+	"dependencies" : 
+	[
+		{
+			"backtrace" : 2,
+			"id" : "sh2_lib::@6890427a1f51a3e7e1df"
+		}
+	],
+	"id" : "BNO085::@6890427a1f51a3e7e1df",
+	"link" : 
+	{
+		"commandFragments" : 
+		[
+			{
+				"fragment" : "-g",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libz.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libzmq.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkFiltersGeneral-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkFiltersSources-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkFiltersModeling-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkFiltersCore-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonExecutionModel-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonDataModel-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonTransforms-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonMath-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonMisc-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonSystem-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkCommonCore-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkkissfft-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtkpugixml-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libvtksys-9.1.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libUVAtlas.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libopenblas.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libembree3.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libsimd.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,liblexers.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libsys.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libmath.a",
+				"role" : "flags"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-Wl,--exclude-libs,libtasking.a",
+				"role" : "flags"
+			},
+			{
+				"fragment" : "-L/usr/lib/llvm-14/lib",
+				"role" : "libraryPath"
+			},
+			{
+				"fragment" : "-Wl,-rpath,/usr/local/cuda-12.6/targets/aarch64-linux/lib:/usr/local/lib:/usr/lib/llvm-14/lib",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "libsh2_lib.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lgpiod",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "/usr/local/lib/libOpen3D.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 3,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcudart.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 8,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_assimp.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 9,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_jpeg.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 10,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_jsoncpp.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_liblzf.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 12,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_curl.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 13,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_openssl_ssl.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 13,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_openssl_crypto.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 14,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_png.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 15,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_zlib.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_rply.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_tinyfiledialogs.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_qhullcpp.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 16,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_qhull_r.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_imgui.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 17,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_zeromq.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkFiltersGeneral-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkFiltersSources-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkFiltersModeling-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkFiltersCore-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonExecutionModel-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonDataModel-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonTransforms-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonMath-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonMisc-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonSystem-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkCommonCore-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkkissfft-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtkpugixml-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_vtk_vtksys-9.1.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 19,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_uvatlas.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_tbb_tbb_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 20,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_tbb_tbbmalloc_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 21,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_blas.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 21,
+				"fragment" : "/usr/lib/gcc/aarch64-linux-gnu/11/libgfortran.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 21,
+				"fragment" : "/usr/lib/gcc/aarch64-linux-gnu/11/libgcc.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 22,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_stdgpu.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_embree3.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_simd.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_lexers.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_sys.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_math.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 23,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_embree_tasking.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 27,
+				"fragment" : "/usr/lib/gcc/aarch64-linux-gnu/11/libgomp.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 27,
+				"fragment" : "/usr/lib/aarch64-linux-gnu/libpthread.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 28,
+				"fragment" : "/usr/local/lib/librealsense2.so.2.56.5",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 34,
+				"fragment" : "/usr/local/lib/librsutils.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcusolver_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 39,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcusolver_metis_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 40,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcusolver_lapack_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda/lib64/libcusolver_lapack_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcusparse_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 42,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnvJitLink_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcublas_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libcublasLt_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppicc_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppif_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppig_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppim_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppial_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 43,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libnppc_static.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 35,
+				"fragment" : "/usr/local/cuda-12.6/targets/aarch64-linux/lib/libculibos.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_glew.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 11,
+				"fragment" : "-lstdc++fs",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 44,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_glfw.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 44,
+				"fragment" : "/usr/lib/aarch64-linux-gnu/libm.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 45,
+				"fragment" : "/usr/lib/aarch64-linux-gnu/libX11.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 46,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_fmt.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filameshio.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filament.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filamat_lite.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filamat.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filaflat.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_filabridge.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_geometry.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_backend.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_bluegl.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_ibl.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_image.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_meshoptimizer.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_smol-v.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/local/lib/libOpen3D_3rdparty_filament_utils.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "-lstdc++",
+				"role" : "libraries"
+			},
+			{
+				"fragment" : "-lc++",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 47,
+				"fragment" : "/usr/lib/llvm-14/lib/libc++abi.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 48,
+				"fragment" : "/usr/lib/aarch64-linux-gnu/libGL.so",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 18,
+				"fragment" : "-ldl",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 44,
+				"fragment" : "/usr/lib/aarch64-linux-gnu/librt.a",
+				"role" : "libraries"
+			}
+		],
+		"language" : "CXX"
+	},
+	"name" : "BNO085",
+	"nameOnDisk" : "BNO085",
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
+				0,
+				1,
+				2,
+				3,
+				4
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/main.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/I2C_HAL.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/I2C_Device.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/BNO085.cpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/Visualization.cpp",
+			"sourceGroupIndex" : 0
+		}
+	],
+	"type" : "EXECUTABLE"
+}

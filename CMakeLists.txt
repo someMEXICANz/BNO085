@@ -5,9 +5,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Find CUDA (if needed)
 find_package(CUDAToolkit)
-
+find_package(Open3D REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GPIOD REQUIRED libgpiod)
+
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
 
 # Fetch sh2 library
 include(FetchContent)
@@ -29,6 +32,7 @@ add_executable(BNO085
     src/I2C_HAL.cpp
     src/I2C_Device.cpp
     src/BNO085.cpp
+    src/Visualization.cpp
 )
 
 # Set include directories for executable
@@ -36,12 +40,14 @@ target_include_directories(BNO085 PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${sh2_SOURCE_DIR}  # This points to the fetched content
     ${GPIOD_INCLUDE_DIRS}
+    ${Open3D_INCLUDE_DIRS}
 )
 
 # Link libraries
 target_link_libraries(BNO085 PRIVATE
     sh2_lib 
     ${GPIOD_LIBRARIES}
+    ${Open3D_LIBRARIES}
 )
 
 # If CUDA is available, link CUDA runtime

@@ -1,56 +1,62 @@
 [
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/euler.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/euler.c",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/euler.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/euler.c",
   "file": "/home/jetson/Desktop/BNO085/build/_deps/sh2-src/euler.c",
   "output": "CMakeFiles/sh2_lib.dir/_deps/sh2-src/euler.c.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2.c",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2.c",
   "file": "/home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2.c",
   "output": "CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2.c.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_SensorValue.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_SensorValue.c",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_SensorValue.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_SensorValue.c",
   "file": "/home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_SensorValue.c",
   "output": "CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_SensorValue.c.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_util.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_util.c",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_util.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_util.c",
   "file": "/home/jetson/Desktop/BNO085/build/_deps/sh2-src/sh2_util.c",
   "output": "CMakeFiles/sh2_lib.dir/_deps/sh2-src/sh2_util.c.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/shtp.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/shtp.c",
+  "command": "/usr/bin/aarch64-linux-gnu-gcc -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -g -o CMakeFiles/sh2_lib.dir/_deps/sh2-src/shtp.c.o -c /home/jetson/Desktop/BNO085/build/_deps/sh2-src/shtp.c",
   "file": "/home/jetson/Desktop/BNO085/build/_deps/sh2-src/shtp.c",
   "output": "CMakeFiles/sh2_lib.dir/_deps/sh2-src/shtp.c.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/main.cpp.o -c /home/jetson/Desktop/BNO085/src/main.cpp",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -DOPEN3D_STATIC -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/main.cpp.o -c /home/jetson/Desktop/BNO085/src/main.cpp",
   "file": "/home/jetson/Desktop/BNO085/src/main.cpp",
   "output": "CMakeFiles/BNO085.dir/src/main.cpp.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_HAL.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_HAL.cpp",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -DOPEN3D_STATIC -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_HAL.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_HAL.cpp",
   "file": "/home/jetson/Desktop/BNO085/src/I2C_HAL.cpp",
   "output": "CMakeFiles/BNO085.dir/src/I2C_HAL.cpp.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_Device.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_Device.cpp",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -DOPEN3D_STATIC -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/I2C_Device.cpp.o -c /home/jetson/Desktop/BNO085/src/I2C_Device.cpp",
   "file": "/home/jetson/Desktop/BNO085/src/I2C_Device.cpp",
   "output": "CMakeFiles/BNO085.dir/src/I2C_Device.cpp.o"
 },
 {
   "directory": "/home/jetson/Desktop/BNO085/build",
-  "command": "/usr/bin/aarch64-linux-gnu-g++ -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/BNO085.cpp.o -c /home/jetson/Desktop/BNO085/src/BNO085.cpp",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -DOPEN3D_STATIC -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/BNO085.cpp.o -c /home/jetson/Desktop/BNO085/src/BNO085.cpp",
   "file": "/home/jetson/Desktop/BNO085/src/BNO085.cpp",
   "output": "CMakeFiles/BNO085.dir/src/BNO085.cpp.o"
+},
+{
+  "directory": "/home/jetson/Desktop/BNO085/build",
+  "command": "/usr/bin/aarch64-linux-gnu-g++ -DFMT_HEADER_ONLY=0 -DFMT_STRING_ALIAS=1 -DFMT_USE_WINDOWS_H=0 -DOPEN3D_STATIC -D_GLIBCXX_USE_CXX11_ABI=1 -I/usr/include/eigen3 -I/home/jetson/Desktop/BNO085/include -I/home/jetson/Desktop/BNO085/build/_deps/sh2-src -isystem /usr/local/include/open3d/3rdparty -isystem /usr/local/cuda/targets/aarch64-linux/include -g -std=gnu++14 -o CMakeFiles/BNO085.dir/src/Visualization.cpp.o -c /home/jetson/Desktop/BNO085/src/Visualization.cpp",
+  "file": "/home/jetson/Desktop/BNO085/src/Visualization.cpp",
+  "output": "CMakeFiles/BNO085.dir/src/Visualization.cpp.o"
 }
 ]

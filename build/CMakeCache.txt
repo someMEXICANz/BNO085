@@ -456,6 +456,9 @@ CUDA_nvrtc_static_LIBRARY:FILEPATH=/usr/local/cuda-12.6/targets/aarch64-linux/li
 //Path to a library.
 CUDA_pcsamplingutil_LIBRARY:FILEPATH=/usr/local/cuda-12.6/targets/aarch64-linux/lib/libpcsamplingutil.so
 
+//The directory containing a CMake configuration file for Eigen3.
+Eigen3_DIR:PATH=/usr/share/eigen3/cmake
+
 //Directory under which to collect all populated content
 FETCHCONTENT_BASE_DIR:PATH=/home/jetson/Desktop/BNO085/build/_deps
 
@@ -496,6 +499,48 @@ Fontconfig_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libfontconfig.so
 
 //Git command line client
 GIT_EXECUTABLE:FILEPATH=/usr/bin/git
+
+//Path to a file.
+OPENGL_EGL_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
+OPENGL_GLES2_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
+OPENGL_GLES3_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
+OPENGL_GLU_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
+OPENGL_GLX_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a file.
+OPENGL_INCLUDE_DIR:PATH=/usr/include
+
+//Path to a library.
+OPENGL_egl_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libEGL.so
+
+//Path to a library.
+OPENGL_gl_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libGL.so
+
+//Path to a library.
+OPENGL_gles2_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libGLESv2.so
+
+//Path to a library.
+OPENGL_gles3_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libGLESv2.so
+
+//Path to a library.
+OPENGL_glu_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libGLU.so
+
+//Path to a library.
+OPENGL_glx_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libGLX.so
+
+//Path to a library.
+OPENGL_opengl_LIBRARY:FILEPATH=/usr/lib/aarch64-linux-gnu/libOpenGL.so
+
+//Path to a file.
+OPENGL_xmesa_INCLUDE_DIR:PATH=OPENGL_xmesa_INCLUDE_DIR-NOTFOUND
 
 //Value Computed by CMake
 Open3DTest_BINARY_DIR:STATIC=/home/jetson/Desktop/BNO085/build
@@ -948,7 +993,7 @@ pkgcfg_lib_PKG_FONTCONFIG_fontconfig:FILEPATH=/usr/lib/aarch64-linux-gnu/libfont
 pkgcfg_lib_PKG_FONTCONFIG_freetype:FILEPATH=/usr/lib/aarch64-linux-gnu/libfreetype.so
 
 //The directory containing a CMake configuration file for realsense2.
-realsense2_DIR:PATH=realsense2_DIR-NOTFOUND
+realsense2_DIR:PATH=/usr/local/lib/cmake/realsense2
 
 
 ########################
@@ -1270,6 +1315,10 @@ CUDA_nvrtc_static_LIBRARY-ADVANCED:INTERNAL=1
 CUDA_pcsamplingutil_LIBRARY-ADVANCED:INTERNAL=1
 //Details about finding CUDAToolkit
 FIND_PACKAGE_MESSAGE_DETAILS_CUDAToolkit:INTERNAL=[/usr/local/cuda/targets/aarch64-linux/include][/usr/local/cuda/lib64/libcudart.so][/usr/local/cuda/bin][v12.6.68()]
+//Details about finding Open3D
+FIND_PACKAGE_MESSAGE_DETAILS_Open3D:INTERNAL=[/usr/local/lib/cmake/Open3D/Open3DConfig.cmake][v0.18.0()]
+//Details about finding OpenGL
+FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/usr/lib/aarch64-linux-gnu/libOpenGL.so][/usr/lib/aarch64-linux-gnu/libGLX.so][/usr/include][c ][v()]
 //Details about finding OpenMP
 FIND_PACKAGE_MESSAGE_DETAILS_OpenMP:INTERNAL=[TRUE][TRUE][c ][v4.5()]
 //Details about finding OpenMP_C
@@ -1331,6 +1380,34 @@ GPIOD_libgpiod_INCLUDEDIR:INTERNAL=
 GPIOD_libgpiod_LIBDIR:INTERNAL=
 GPIOD_libgpiod_PREFIX:INTERNAL=
 GPIOD_libgpiod_VERSION:INTERNAL=
+//ADVANCED property for variable: OPENGL_EGL_INCLUDE_DIR
+OPENGL_EGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_GLES2_INCLUDE_DIR
+OPENGL_GLES2_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_GLES3_INCLUDE_DIR
+OPENGL_GLES3_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_GLU_INCLUDE_DIR
+OPENGL_GLU_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_GLX_INCLUDE_DIR
+OPENGL_GLX_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_INCLUDE_DIR
+OPENGL_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_egl_LIBRARY
+OPENGL_egl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_gl_LIBRARY
+OPENGL_gl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_gles2_LIBRARY
+OPENGL_gles2_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_gles3_LIBRARY
+OPENGL_gles3_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_glu_LIBRARY
+OPENGL_glu_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_glx_LIBRARY
+OPENGL_glx_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_opengl_LIBRARY
+OPENGL_opengl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: OPENGL_xmesa_INCLUDE_DIR
+OPENGL_xmesa_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //Result of TRY_COMPILE
 OpenMP_COMPILE_RESULT_CXX_fopenmp:INTERNAL=TRUE
 //Result of TRY_COMPILE
