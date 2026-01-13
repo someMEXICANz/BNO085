@@ -1,4 +1,0 @@
-/home/jetson/Desktop/BNO085/build/CMakeFiles/sh2_lib.dir
-/home/jetson/Desktop/BNO085/build/CMakeFiles/BNO085.dir
-/home/jetson/Desktop/BNO085/build/CMakeFiles/edit_cache.dir
-/home/jetson/Desktop/BNO085/build/CMakeFiles/rebuild_cache.dir
