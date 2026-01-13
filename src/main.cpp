@@ -1,83 +1,165 @@
 
 
 
+// #include "BNO085.h"
+// #include <iostream>
+// #include <iomanip>
+// #include <signal.h>
+// #include <thread>
+// #include <chrono>
+// #include <atomic>
+// #include <mutex>
+// #include <memory>
+
+// #include "Visualization.h"
+
+// // =============================================================================
+// // CONFIGURATION - EDIT THESE VALUES
+// // =============================================================================
+
+// const std::string MODEL_PATH = "models/bun_zipper.ply";      // Path to your 3D model
+// const std::string I2C_BUS = "/dev/i2c-7";               // I2C bus
+// const uint8_t I2C_ADDRESS = 0x4A;                       // I2C address
+// const BNO085::ResetPin RESET_PIN = BNO085::ResetPin::PIN_7;  // Reset pin
+
+
+// // =============================================================================
+// // MAIN
+// // =============================================================================
+
+// int main() {
+//     std::cout << "========================================" << std::endl;
+//     std::cout << "BNO085 IMU 3D Visualization" << std::endl;
+//     std::cout << "========================================" << std::endl;
+//     std::cout << "Model: " << MODEL_PATH << std::endl;
+//     std::cout << "I2C: " << I2C_BUS << " @ 0x" << std::hex 
+//               << static_cast<int>(I2C_ADDRESS) << std::dec << std::endl;
+//     std::cout << "========================================\n" << std::endl;
+    
+//     signal(SIGINT, signalHandler);
+//     signal(SIGTERM, signalHandler);
+    
+//     // Initialize sensor
+//     std::cout << "Initializing BNO085..." << std::endl;
+//     BNO085 sensor(I2C_BUS, I2C_ADDRESS, RESET_PIN);
+    
+//     if (!sensor.initialize()) {
+//         std::cerr << "Failed to initialize: " << sensor.getLastError() << std::endl;
+//         return 1;
+//     }
+    
+//     startVisualization(sensor, MODEL_PATH);
+//     sensor.stopService();
+//     sensor.shutdown();
+    
+//     std::cout << "Done!" << std::endl;
+//     return 0;
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// main.cpp - Revised
 #include "BNO085.h"
+#include "GUI.h"
 #include <iostream>
-#include <iomanip>
-#include <signal.h>
 #include <thread>
-#include <chrono>
 #include <atomic>
-#include <mutex>
-#include <memory>
+#include <signal.h>
 
-#include "Visualization.h"
+std::atomic<bool> running{true};
 
-// =============================================================================
-// CONFIGURATION - EDIT THESE VALUES
-// =============================================================================
+void signalHandler(int signal) {
+    std::cout << "\nShutting down..." << std::endl;
+    running = false;
+}
 
-const std::string MODEL_PATH = "models/bun_zipper.ply";      // Path to your 3D model
-const std::string I2C_BUS = "/dev/i2c-7";               // I2C bus
-const uint8_t I2C_ADDRESS = 0x4A;                       // I2C address
-const BNO085::ResetPin RESET_PIN = BNO085::ResetPin::PIN_7;  // Reset pin
+void sensorUpdateLoop(IMUVisualizer* visualizer, BNO085& sensor) {
+    while (running && visualizer->IsRunning()) {
+        BNO085::OrientationData orient_data;
+        BNO085::IMUData imu_data;
+        
+        if (sensor.getOrientationData(orient_data) && 
+            sensor.getIMUData(imu_data)) {
+            
+            visualizer->UpdateSensorData(orient_data.rotation, 
+                                        imu_data.acceleration);
+        }
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(16)); // ~60 FPS
+    }
+    running = false;
+}
 
-
-// =============================================================================
-// MAIN
-// =============================================================================
-
-int main() {
-    std::cout << "========================================" << std::endl;
-    std::cout << "BNO085 IMU 3D Visualization" << std::endl;
-    std::cout << "========================================" << std::endl;
-    std::cout << "Model: " << MODEL_PATH << std::endl;
-    std::cout << "I2C: " << I2C_BUS << " @ 0x" << std::hex 
-              << static_cast<int>(I2C_ADDRESS) << std::dec << std::endl;
-    std::cout << "========================================\n" << std::endl;
+int main(int argc, char* argv[]) {
+    const std::string MODEL_PATH = "models/bun_zipper.ply";
+    const std::string I2C_BUS = "/dev/i2c-7";
+    const uint8_t I2C_ADDRESS = 0x4A;
+    const BNO085::ResetPin RESET_PIN = BNO085::ResetPin::PIN_7;
     
     signal(SIGINT, signalHandler);
     signal(SIGTERM, signalHandler);
     
-    // Initialize sensor
-    std::cout << "Initializing BNO085..." << std::endl;
-    BNO085 sensor(I2C_BUS, I2C_ADDRESS, RESET_PIN);
+    std::cout << "========================================" << std::endl;
+    std::cout << "BNO085 IMU Visualizer" << std::endl;
+    std::cout << "========================================" << std::endl;
     
+    // Initialize sensor
+    BNO085 sensor(I2C_BUS, I2C_ADDRESS, RESET_PIN);
     if (!sensor.initialize()) {
-        std::cerr << "Failed to initialize: " << sensor.getLastError() << std::endl;
+        std::cerr << "Failed to initialize sensor" << std::endl;
         return 1;
     }
     
-    startVisualization(sensor, MODEL_PATH);
-    sensor.stopService();
+    sensor.enableOrientation();
+    sensor.enableBasicIMU();
+    sensor.startService();
+    
+    // Wait for initial data
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    std::cout << "Sensor initialized" << std::endl;
+    
+    // Initialize GUI application
+    open3d::visualization::gui::Application::GetInstance().Initialize("/usr/local/share/Open3D/resources");
+    
+    // Create visualizer
+    auto visualizer = std::make_shared<IMUVisualizer>(MODEL_PATH);
+    visualizer->Run();
+    
+    // Start sensor update thread
+    std::thread update_thread(sensorUpdateLoop, visualizer.get(), std::ref(sensor));
+    
+    // Run GUI (blocking)
+    std::cout << "Starting GUI..." << std::endl;
+    open3d::visualization::gui::Application::GetInstance().Run();
+    
+    // Cleanup
+    std::cout << "Cleaning up..." << std::endl;
+    running = false;
+    update_thread.join();
     sensor.shutdown();
     
     std::cout << "Done!" << std::endl;
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

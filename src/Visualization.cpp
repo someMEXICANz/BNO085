@@ -173,10 +173,10 @@ void visualizationThread(const std::string& ply_file) {
 // SIGNAL HANDLER
 // =============================================================================
 
-void signalHandler(int signal) {
-    std::cout << "\n\nShutting down..." << std::endl;
-    g_sensor_state.running = false;
-}
+// void signalHandler(int signal) {
+//     std::cout << "\n\nShutting down..." << std::endl;
+//     g_sensor_state.running = false;
+// }
 
 
 
