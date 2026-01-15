@@ -1,0 +1,5 @@
+1. Create dedicated tabs for calibration and or taring for main sensors only Gyroscope Magnetometer and Accelerometer 
+2. To demonstate linear accelration and or the magnetometer values, using a ball or cube made up of large voxels which would 
+increase thier spacing next to each other based on the vector values. 
+3. To demonstate the gravity sensor a plane could a be a translucent red when not level and translucent green to indicate it is. 
+
