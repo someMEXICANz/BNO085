@@ -33,14 +33,24 @@ private:
     void OnCalibrateClicked();
     void OnSaveCalibrationClicked();
     void OnResetSensorClicked();
+    void UpdateAccelCalibration();
+    void UpdateGyroCalibration();
+    void UpdateMagCalibration();
+    void OnAccelCalStart();
+    void OnAccelCalSave();
+    void OnAccelTare();
+    void OnGyroCalStart();
+    void OnGyroCalSave();
+    void OnGyroTare();
+    void OnMagCalStart();
+    void OnMagCalSave();
     
     // UI Update functions
     void UpdateCalibrationStatus();
     void UpdateSensorInfo();
-    void RefreshSamplingRateDropdown();
     
     // Helper functions
-    BNO085::SensorType GetCurrentSensorType() const;
+    sh2_SensorId_t GetCurrentSensorId() const;
     void ApplySensorConfiguration();
     
     // 3D Visualization
@@ -81,6 +91,30 @@ private:
     std::shared_ptr<open3d::visualization::gui::Label> quat_z_label_;
     std::shared_ptr<open3d::visualization::gui::Label> quat_accuracy_label_;
 
+    // Calibration tabs
+    std::shared_ptr<open3d::visualization::gui::TabControl> calibration_tabs_;
+    
+    // Accelerometer calibration
+    std::shared_ptr<open3d::visualization::gui::Label> accel_cal_status_;
+    std::shared_ptr<open3d::visualization::gui::ProgressBar> accel_cal_progress_;
+    std::shared_ptr<open3d::visualization::gui::Button> accel_cal_start_button_;
+    std::shared_ptr<open3d::visualization::gui::Button> accel_cal_save_button_;
+    std::shared_ptr<open3d::visualization::gui::Button> accel_tare_button_;
+    
+    // Gyroscope calibration
+    std::shared_ptr<open3d::visualization::gui::Label> gyro_cal_status_;
+    std::shared_ptr<open3d::visualization::gui::ProgressBar> gyro_cal_progress_;
+    std::shared_ptr<open3d::visualization::gui::Button> gyro_cal_start_button_;
+    std::shared_ptr<open3d::visualization::gui::Button> gyro_cal_save_button_;
+    std::shared_ptr<open3d::visualization::gui::Button> gyro_tare_button_;
+    
+    // Magnetometer calibration
+    std::shared_ptr<open3d::visualization::gui::Label> mag_cal_status_;
+    std::shared_ptr<open3d::visualization::gui::ProgressBar> mag_cal_progress_;
+    std::shared_ptr<open3d::visualization::gui::Button> mag_cal_start_button_;
+    std::shared_ptr<open3d::visualization::gui::Button> mag_cal_save_button_;
+    std::shared_ptr<open3d::visualization::gui::Label> mag_field_strength_;
+    std::shared_ptr<open3d::visualization::gui::Label> mag_instructions_;
     
     // Data synchronization
     std::mutex data_mutex_;
@@ -94,10 +128,10 @@ private:
     
     // Configuration state
     int current_sensor_index_;
-    std::map<BNO085::SensorType, BNO085::SensorConfig> sensor_configs_;
+    std::map<sh2_SensorId_t, sh2_SensorConfig_t> sensor_configs_;
     
-    // Sensor type mappings
-    static const std::vector<std::pair<std::string, BNO085::SensorType>> sensor_types_;
+    // Sensor type mappings - now using sh2_SensorId_t
+    static const std::vector<std::pair<std::string, sh2_SensorId_t>> sensor_types_;
     static const std::vector<std::pair<std::string, float>> sampling_rates_;
 };
 

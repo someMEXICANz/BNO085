@@ -111,50 +111,50 @@ inline std::string sensorIdToString(sh2_SensorId_t sensorId) {
  * @brief Print sensor value in a human-readable format
  * @param value Decoded sensor value
  */
-inline void printSensorValue(const sh2_SensorValue_t& value) {
-    std::cout << "[" << sensorIdToString(value.sensorId) << "] ";
+// inline void printSensorValue(const sh2_SensorValue_t& value) {
+//     std::cout << "[" << sensorIdToString(value.sensorId) << "] ";
     
-    switch (value.sensorId) {
-        case SH2_ACCELEROMETER:
-            std::cout << "X=" << value.un.accelerometer.x 
-                      << " Y=" << value.un.accelerometer.y 
-                      << " Z=" << value.un.accelerometer.z << " m/s²";
-            break;
+//     switch (value.sensorId) {
+//         case SH2_ACCELEROMETER:
+//             std::cout << "X=" << value.un.accelerometer.x 
+//                       << " Y=" << value.un.accelerometer.y 
+//                       << " Z=" << value.un.accelerometer.z << " m/s²";
+//             break;
             
-        case SH2_GYROSCOPE_CALIBRATED:
-            std::cout << "X=" << value.un.gyroscope.x 
-                      << " Y=" << value.un.gyroscope.y 
-                      << " Z=" << value.un.gyroscope.z << " rad/s";
-            break;
+//         case SH2_GYROSCOPE_CALIBRATED:
+//             std::cout << "X=" << value.un.gyroscope.x 
+//                       << " Y=" << value.un.gyroscope.y 
+//                       << " Z=" << value.un.gyroscope.z << " rad/s";
+//             break;
             
-        case SH2_MAGNETIC_FIELD_CALIBRATED:
-            std::cout << "X=" << value.un.magneticField.x 
-                      << " Y=" << value.un.magneticField.y 
-                      << " Z=" << value.un.magneticField.z << " µT";
-            break;
+//         case SH2_MAGNETIC_FIELD_CALIBRATED:
+//             std::cout << "X=" << value.un.magneticField.x 
+//                       << " Y=" << value.un.magneticField.y 
+//                       << " Z=" << value.un.magneticField.z << " µT";
+//             break;
             
-        case SH2_ROTATION_VECTOR:
-            {
-                float yaw, pitch, roll;
-                q_to_ypr(value.un.rotationVector.real,
-                         value.un.rotationVector.i,
-                         value.un.rotationVector.j,
-                         value.un.rotationVector.k,
-                         &yaw, &pitch, &roll);
+//         case SH2_ROTATION_VECTOR:
+//             {
+//                 float yaw, pitch, roll;
+//                 q_to_ypr(value.un.rotationVector.real,
+//                          value.un.rotationVector.i,
+//                          value.un.rotationVector.j,
+//                          value.un.rotationVector.k,
+//                          &yaw, &pitch, &roll);
                 
-                std::cout << "Yaw=" << (yaw * 180.0f / M_PI) 
-                          << "° Pitch=" << (pitch * 180.0f / M_PI)
-                          << "° Roll=" << (roll * 180.0f / M_PI) << "°";
-            }
-            break;
+//                 std::cout << "Yaw=" << (yaw * 180.0f / M_PI) 
+//                           << "° Pitch=" << (pitch * 180.0f / M_PI)
+//                           << "° Roll=" << (roll * 180.0f / M_PI) << "°";
+//             }
+//             break;
             
-        default:
-            std::cout << "Data available";
-            break;
-    }
+//         default:
+//             std::cout << "Data available";
+//             break;
+//     }
     
-    std::cout << " (Status=" << static_cast<int>(value.status) << ")" << std::endl;
-}
+//     std::cout << " (Status=" << static_cast<int>(value.status) << ")" << std::endl;
+// }
 
 #endif // __cplusplus
 

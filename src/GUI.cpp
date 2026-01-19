@@ -1,4 +1,4 @@
-// GUI.cpp - Enhanced with Interactive Controls
+// GUI.cpp - Updated for refactored BNO085 class
 #include "GUI.h"
 #include <iostream>
 #include <iomanip>
@@ -7,15 +7,20 @@
 using namespace open3d;
 using namespace open3d::visualization;
 
-// Static member definitions
-const std::vector<std::pair<std::string, BNO085::SensorType>> IMUVisualizer::sensor_types_ = {
-    {"Rotation Vector", BNO085::SensorType::ROTATION_VECTOR},
-    {"Game Rotation Vector", BNO085::SensorType::GAME_ROTATION_VECTOR},
-    {"Accelerometer", BNO085::SensorType::ACCELEROMETER},
-    {"Gyroscope", BNO085::SensorType::GYROSCOPE},
-    {"Magnetometer", BNO085::SensorType::MAGNETOMETER},
-    {"Linear Acceleration", BNO085::SensorType::LINEAR_ACCELERATION},
-    {"Gravity", BNO085::SensorType::GRAVITY}
+// Static member definitions - now using sh2_SensorId_t
+const std::vector<std::pair<std::string, sh2_SensorId_t>> IMUVisualizer::sensor_types_ = {
+    {"Rotation Vector", SH2_ROTATION_VECTOR},
+    {"Game Rotation Vector", SH2_GAME_ROTATION_VECTOR},
+    {"Geomagnetic Rotation Vector", SH2_GEOMAGNETIC_ROTATION_VECTOR},
+    {"Stabilized Rotation Vector", SH2_ARVR_STABILIZED_RV},
+    {"Stabilized Game Rotation", SH2_ARVR_STABILIZED_GRV},
+    {"Accelerometer", SH2_ACCELEROMETER},
+    {"Linear Acceleration", SH2_LINEAR_ACCELERATION},
+    {"Gravity", SH2_GRAVITY},
+    {"Gyroscope (Calibrated)", SH2_GYROSCOPE_CALIBRATED},
+    {"Gyroscope (Uncalibrated)", SH2_GYROSCOPE_UNCALIBRATED},
+    {"Magnetometer (Calibrated)", SH2_MAGNETIC_FIELD_CALIBRATED},
+    {"Magnetometer (Uncalibrated)", SH2_MAGNETIC_FIELD_UNCALIBRATED}
 };
 
 const std::vector<std::pair<std::string, float>> IMUVisualizer::sampling_rates_ = {
@@ -43,9 +48,7 @@ IMUVisualizer::IMUVisualizer(const std::string& model_path, BNO085& sensor)
     
     // Initialize default sensor configurations
     for (const auto& sensor_pair : sensor_types_) {
-        BNO085::SensorConfig config;
-        config.setFrequency(100.0f);  // Default 100 Hz
-        config.enabled = false;
+        sh2_SensorConfig_t config = BNO085::createSensorConfig(100.0f);  // Default 100 Hz
         sensor_configs_[sensor_pair.second] = config;
     }
 }
@@ -74,6 +77,7 @@ void IMUVisualizer::LoadModel(const std::string& path) {
     original_vertices_ = mesh_->vertices_;
     coord_frame_ = geometry::TriangleMesh::CreateCoordinateFrame(0.3);
 }
+
 void IMUVisualizer::SetupUI() {
     auto& theme = vis_->GetTheme();
     int em = theme.font_size;
@@ -87,7 +91,7 @@ void IMUVisualizer::SetupUI() {
     auto title = std::make_shared<gui::Label>("BNO085 IMU Controls");
     settings_panel_->AddChild(title);
     settings_panel_->AddFixed(vspacing);
-    settings_panel_->SetFrame(gui::Rect(0, 24, 300, 600));
+    settings_panel_->SetFrame(gui::Rect(0, 0, 300, 600));
     
     // Sensor Type Dropdown
     auto sensor_label = std::make_shared<gui::Label>("Sensor Type:");
@@ -129,35 +133,129 @@ void IMUVisualizer::SetupUI() {
     settings_panel_->AddChild(enable_sensor_checkbox_);
     settings_panel_->AddFixed(vspacing * 2);
     
-    // Calibration Section
-    auto cal_label = std::make_shared<gui::Label>("Calibration");
-    settings_panel_->AddChild(cal_label);
+    // =========================================================================
+    // CALIBRATION TABS
+    // =========================================================================
     
-    calibration_label_ = std::make_shared<gui::Label>("Status: Unknown");
-    settings_panel_->AddChild(calibration_label_);
+    auto cal_section_label = std::make_shared<gui::Label>("Calibration");
+    settings_panel_->AddChild(cal_section_label);
+    settings_panel_->AddFixed(vspacing);
     
-    calibrate_button_ = std::make_shared<gui::Button>("Start Calibration");
-    calibrate_button_->SetOnClicked([this]() {
-        OnCalibrateClicked();
-    });
-    settings_panel_->AddChild(calibrate_button_);
+    calibration_tabs_ = std::make_shared<gui::TabControl>();
     
-    save_cal_button_ = std::make_shared<gui::Button>("Save Calibration");
-    save_cal_button_->SetOnClicked([this]() {
-        OnSaveCalibrationClicked();
-    });
-    settings_panel_->AddChild(save_cal_button_);
+    // -------------------------------------------------------------------------
+    // ACCELEROMETER CALIBRATION TAB
+    // -------------------------------------------------------------------------
+    // auto accel_cal_panel = std::make_shared<gui::Vert>(0, gui::Margins(em/2));
+    
+    // auto accel_status_label = std::make_shared<gui::Label>("Status:");
+    // accel_cal_panel->AddChild(accel_status_label);
+    
+    // accel_cal_status_ = std::make_shared<gui::Label>("Uncalibrated");
+    // accel_cal_panel->AddChild(accel_cal_status_);
+    // accel_cal_panel->AddFixed(vspacing);
+    
+    // accel_cal_progress_ = std::make_shared<gui::ProgressBar>();
+    // accel_cal_progress_->SetValue(0.0f);
+    // accel_cal_panel->AddChild(accel_cal_progress_);
+    // accel_cal_panel->AddFixed(vspacing);
+    
+    // accel_cal_start_button_ = std::make_shared<gui::Button>("Start Calibration");
+    // accel_cal_start_button_->SetOnClicked([this]() { OnAccelCalStart(); });
+    // accel_cal_panel->AddChild(accel_cal_start_button_);
+    
+    // accel_cal_save_button_ = std::make_shared<gui::Button>("Save Calibration");
+    // accel_cal_save_button_->SetOnClicked([this]() { OnAccelCalSave(); });
+    // accel_cal_panel->AddChild(accel_cal_save_button_);
+    // accel_cal_panel->AddFixed(vspacing);
+    
+    // accel_tare_button_ = std::make_shared<gui::Button>("Tare (Zero Current)");
+    // accel_tare_button_->SetOnClicked([this]() { OnAccelTare(); });
+    // accel_cal_panel->AddChild(accel_tare_button_);
+    
+    // calibration_tabs_->AddTab("Accel", accel_cal_panel);
+    
+    // -------------------------------------------------------------------------
+    // GYROSCOPE CALIBRATION TAB
+    // -------------------------------------------------------------------------
+    // auto gyro_cal_panel = std::make_shared<gui::Vert>(0, gui::Margins(em/2));
+    
+    // auto gyro_status_label = std::make_shared<gui::Label>("Status:");
+    // gyro_cal_panel->AddChild(gyro_status_label);
+    
+    // gyro_cal_status_ = std::make_shared<gui::Label>("Uncalibrated");
+    // gyro_cal_panel->AddChild(gyro_cal_status_);
+    // gyro_cal_panel->AddFixed(vspacing);
+    
+    // gyro_cal_progress_ = std::make_shared<gui::ProgressBar>();
+    // gyro_cal_progress_->SetValue(0.0f);
+    // gyro_cal_panel->AddChild(gyro_cal_progress_);
+    // gyro_cal_panel->AddFixed(vspacing);
+    
+    // gyro_cal_start_button_ = std::make_shared<gui::Button>("Start Calibration");
+    // gyro_cal_start_button_->SetOnClicked([this]() { OnGyroCalStart(); });
+    // gyro_cal_panel->AddChild(gyro_cal_start_button_);
+    
+    // gyro_cal_save_button_ = std::make_shared<gui::Button>("Save Calibration");
+    // gyro_cal_save_button_->SetOnClicked([this]() { OnGyroCalSave(); });
+    // gyro_cal_panel->AddChild(gyro_cal_save_button_);
+    // gyro_cal_panel->AddFixed(vspacing);
+    
+    // gyro_tare_button_ = std::make_shared<gui::Button>("Tare (Zero Rotation)");
+    // gyro_tare_button_->SetOnClicked([this]() { OnGyroTare(); });
+    // gyro_cal_panel->AddChild(gyro_tare_button_);
+    
+    // calibration_tabs_->AddTab("Gyro", gyro_cal_panel);
+    
+    // // -------------------------------------------------------------------------
+    // // MAGNETOMETER CALIBRATION TAB
+    // // -------------------------------------------------------------------------
+    // auto mag_cal_panel = std::make_shared<gui::Vert>(0, gui::Margins(em/2));
+    
+    // auto mag_status_label = std::make_shared<gui::Label>("Status:");
+    // mag_cal_panel->AddChild(mag_status_label);
+    
+    // mag_cal_status_ = std::make_shared<gui::Label>("Uncalibrated");
+    // mag_cal_panel->AddChild(mag_cal_status_);
+    // mag_cal_panel->AddFixed(vspacing);
+    
+    // mag_cal_progress_ = std::make_shared<gui::ProgressBar>();
+    // mag_cal_progress_->SetValue(0.0f);
+    // mag_cal_panel->AddChild(mag_cal_progress_);
+    // mag_cal_panel->AddFixed(vspacing);
+    
+    // mag_instructions_ = std::make_shared<gui::Label>("Move in figure-8 pattern");
+    // mag_cal_panel->AddChild(mag_instructions_);
+    // mag_cal_panel->AddFixed(vspacing);
+    
+    // mag_cal_start_button_ = std::make_shared<gui::Button>("Start Calibration");
+    // mag_cal_start_button_->SetOnClicked([this]() { OnMagCalStart(); });
+    // mag_cal_panel->AddChild(mag_cal_start_button_);
+    
+    // mag_cal_save_button_ = std::make_shared<gui::Button>("Save Calibration");
+    // mag_cal_save_button_->SetOnClicked([this]() { OnMagCalSave(); });
+    // mag_cal_panel->AddChild(mag_cal_save_button_);
+    // mag_cal_panel->AddFixed(vspacing);
+    
+    // auto mag_field_label = std::make_shared<gui::Label>("Magnetic Field:");
+    // mag_cal_panel->AddChild(mag_field_label);
+    // mag_field_strength_ = std::make_shared<gui::Label>("-- µT");
+    // mag_cal_panel->AddChild(mag_field_strength_);
+    
+    // calibration_tabs_->AddTab("Mag", mag_cal_panel);
+    
+    // Add calibration tabs to main panel
+    settings_panel_->AddChild(calibration_tabs_);
     settings_panel_->AddFixed(vspacing * 2);
     
     // =========================================================================
-    // TABBED SENSOR DATA DISPLAY
+    // SENSOR DATA TABS
     // =========================================================================
     
     auto data_section_label = std::make_shared<gui::Label>("Sensor Data");
     settings_panel_->AddChild(data_section_label);
     settings_panel_->AddFixed(vspacing);
     
-    // Create tab control
     data_tabs_ = std::make_shared<gui::TabControl>();
     
     // -------------------------------------------------------------------------
@@ -247,15 +345,14 @@ void IMUVisualizer::SetupUI() {
     
     data_tabs_->AddTab("Quaternion", quat_panel);
     
-    // Add tab control to main panel
+    // Add data tabs to main panel
     settings_panel_->AddChild(data_tabs_);
     settings_panel_->AddFixed(vspacing * 2);
     
     // =========================================================================
-    // END TABBED SECTION
+    // RESET BUTTON
     // =========================================================================
     
-    // Reset Button
     reset_button_ = std::make_shared<gui::Button>("Reset Sensor");
     reset_button_->SetOnClicked([this]() {
         OnResetSensorClicked();
@@ -337,14 +434,18 @@ void IMUVisualizer::UpdateSensorData(const BNO085::Quaternion& quat,
                      euler.x, euler.y, euler.z, accel.x, accel.y, accel.z);
             vis_->SetTitle(buffer);
             
-            // Update sensor info label
+            // Update sensor info labels
             UpdateSensorInfo();
-            UpdateCalibrationStatus();
+            
+            // Update calibration tabs
+            // UpdateAccelCalibration();
+            // UpdateGyroCalibration();
+            // UpdateMagCalibration();
         });
 }
 
 // ============================================================================
-// UI Callback Implementations
+// UI CALLBACK IMPLEMENTATIONS
 // ============================================================================
 
 void IMUVisualizer::OnSensorTypeChanged(const char* sensor_name, int index) {
@@ -352,17 +453,23 @@ void IMUVisualizer::OnSensorTypeChanged(const char* sensor_name, int index) {
     current_sensor_index_ = index;
     
     // Update UI to reflect current sensor's configuration
-    BNO085::SensorType sensor_type = GetCurrentSensorType();
-    auto& config = sensor_configs_[sensor_type];
+    sh2_SensorId_t sensor_id = GetCurrentSensorId();
     
-    enable_sensor_checkbox_->SetChecked(config.enabled);
-    
-    // Find matching sampling rate index
-    float current_freq = config.getFrequency();
-    for (size_t i = 0; i < sampling_rates_.size(); ++i) {
-        if (std::abs(sampling_rates_[i].second - current_freq) < 0.1f) {
-            sampling_rate_dropdown_->SetSelectedIndex(i);
-            break;
+    // Check if sensor config exists
+    auto it = sensor_configs_.find(sensor_id);
+    if (it != sensor_configs_.end()) {
+        auto& config = it->second;
+        
+        // Update enable checkbox
+        enable_sensor_checkbox_->SetChecked(config.reportInterval_us > 0);
+        
+        // Find matching sampling rate index
+        float current_freq = 1000000.0f / config.reportInterval_us;
+        for (size_t i = 0; i < sampling_rates_.size(); ++i) {
+            if (std::abs(sampling_rates_[i].second - current_freq) < 0.1f) {
+                sampling_rate_dropdown_->SetSelectedIndex(i);
+                break;
+            }
         }
     }
 }
@@ -370,18 +477,20 @@ void IMUVisualizer::OnSensorTypeChanged(const char* sensor_name, int index) {
 void IMUVisualizer::OnSamplingRateChanged(const char* label, double value) {
     std::cout << "Sampling rate changed to: " << label << " (" << value << " Hz)" << std::endl;
     
-    BNO085::SensorType sensor_type = GetCurrentSensorType();
-    sensor_configs_[sensor_type].setFrequency(static_cast<float>(value));
+    sh2_SensorId_t sensor_id = GetCurrentSensorId();
+    
+    // Update config
+    auto& config = sensor_configs_[sensor_id];
+    config.reportInterval_us = static_cast<uint32_t>(1000000.0f / value);
     
     // If sensor is currently enabled, re-apply configuration
-    if (sensor_configs_[sensor_type].enabled) {
+    if (config.reportInterval_us > 0) {
         ApplySensorConfiguration();
     }
 }
 
 void IMUVisualizer::OnEnableSensorToggled(bool enabled) {
-    BNO085::SensorType sensor_type = GetCurrentSensorType();
-    sensor_configs_[sensor_type].enabled = enabled;
+    sh2_SensorId_t sensor_id = GetCurrentSensorId();
     
     std::cout << "Sensor " << sensor_types_[current_sensor_index_].first 
               << (enabled ? " enabled" : " disabled") << std::endl;
@@ -389,124 +498,278 @@ void IMUVisualizer::OnEnableSensorToggled(bool enabled) {
     if (enabled) {
         ApplySensorConfiguration();
     } else {
-        sensor_.disableSensor(sensor_type);
+        sensor_.disableSensor(sensor_id);
     }
 }
 
-void IMUVisualizer::OnCalibrateClicked() {
-    std::cout << "Starting calibration..." << std::endl;
+// void IMUVisualizer::OnCalibrateClicked() {
+//     std::cout << "Starting calibration..." << std::endl;
     
-    BNO085::SensorType sensor_type = GetCurrentSensorType();
-    auto& config = sensor_configs_[sensor_type];
-    
-    if (sensor_.startCalibration(config.reportInterval_us)) {
-        calibrate_button_->SetText("Stop Calibration");
-        std::cout << "Calibration started. Move the sensor in a figure-8 pattern." << std::endl;
-    } else {
-        std::cerr << "Failed to start calibration" << std::endl;
-    }
-}
+//     if (sensor_.startCalibration(10000)) {
+//         calibrate_button_->SetText("Stop Calibration");
+//         std::cout << "Calibration started. Move the sensor in a figure-8 pattern." << std::endl;
+//     } else {
+//         std::cerr << "Failed to start calibration" << std::endl;
+//     }
+// }
 
-void IMUVisualizer::OnSaveCalibrationClicked() {
-    std::cout << "Saving calibration..." << std::endl;
+// void IMUVisualizer::OnSaveCalibrationClicked() {
+//     std::cout << "Saving calibration..." << std::endl;
     
-    if (sensor_.saveCalibration()) {
-        std::cout << "Calibration saved successfully!" << std::endl;
-    } else {
-        std::cerr << "Failed to save calibration" << std::endl;
-    }
-}
+//     if (sensor_.saveCalibration()) {
+//         std::cout << "Calibration saved successfully!" << std::endl;
+//     } else {
+//         std::cerr << "Failed to save calibration" << std::endl;
+//     }
+// }
 
 void IMUVisualizer::OnResetSensorClicked() {
     std::cout << "Resetting sensor..." << std::endl;
     
-    sensor_.hardwareReset();
     if (sensor_.hardwareReset()) {
         std::cout << "Sensor reset successfully!" << std::endl;
-    
     } else {
         std::cerr << "Failed to reset sensor" << std::endl;
     }
 }
 
 // ============================================================================
-// Helper Functions
+// CALIBRATION CALLBACK IMPLEMENTATIONS
 // ============================================================================
 
-BNO085::SensorType IMUVisualizer::GetCurrentSensorType() const {
+// void IMUVisualizer::OnAccelCalStart() {
+//     std::cout << "Starting accelerometer calibration..." << std::endl;
+//     accel_cal_start_button_->SetText("Calibrating...");
+//     accel_cal_progress_->SetValue(0.0f);
+    
+//     if (sensor_.startCalibration(10000)) {
+//         std::cout << "Place sensor in different orientations" << std::endl;
+//     }
+// }
+
+// void IMUVisualizer::OnAccelCalSave() {
+//     std::cout << "Saving accelerometer calibration..." << std::endl;
+//     if (sensor_.saveCalibration()) {
+//         std::cout << "Accelerometer calibration saved!" << std::endl;
+//         accel_cal_status_->SetText("Calibrated ✓");
+//     } else {
+//         std::cerr << "Failed to save accelerometer calibration" << std::endl;
+//     }
+// }
+
+void IMUVisualizer::OnAccelTare() {
+    std::cout << "Taring accelerometer (zeroing current position)..." << std::endl;
+    // TODO: Implement tare functionality
+    std::cout << "Current accelerometer reading set as zero reference" << std::endl;
+}
+
+// void IMUVisualizer::OnGyroCalStart() {
+//     std::cout << "Starting gyroscope calibration..." << std::endl;
+//     gyro_cal_start_button_->SetText("Calibrating...");
+//     gyro_cal_progress_->SetValue(0.0f);
+    
+//     if (sensor_.startCalibration(10000)) {
+//         std::cout << "Keep sensor stationary..." << std::endl;
+//     }
+// }
+
+// void IMUVisualizer::OnGyroCalSave() {
+//     std::cout << "Saving gyroscope calibration..." << std::endl;
+//     if (sensor_.saveCalibration()) {
+//         std::cout << "Gyroscope calibration saved!" << std::endl;
+//         gyro_cal_status_->SetText("Calibrated ✓");
+//     } else {
+//         std::cerr << "Failed to save gyroscope calibration" << std::endl;
+//     }
+// }
+
+void IMUVisualizer::OnGyroTare() {
+    std::cout << "Taring gyroscope (zeroing current rotation)..." << std::endl;
+    // TODO: Implement tare functionality
+    std::cout << "Current gyroscope reading set as zero reference" << std::endl;
+}
+
+// void IMUVisualizer::OnMagCalStart() {
+//     std::cout << "Starting magnetometer calibration..." << std::endl;
+//     mag_cal_start_button_->SetText("Calibrating...");
+//     mag_cal_progress_->SetValue(0.0f);
+//     mag_instructions_->SetText("Move in figure-8 pattern NOW");
+    
+//     if (sensor_.startCalibration(10000)) {
+//         std::cout << "Magnetometer calibration started" << std::endl;
+//     } else {
+//         std::cerr << "Failed to start magnetometer calibration" << std::endl;
+//     }
+// }
+
+// void IMUVisualizer::OnMagCalSave() {
+//     std::cout << "Saving magnetometer calibration..." << std::endl;
+//     if (sensor_.saveCalibration()) {
+//         std::cout << "Magnetometer calibration saved!" << std::endl;
+//         mag_cal_status_->SetText("Calibrated ✓");
+//         mag_instructions_->SetText("Calibration complete!");
+//     } else {
+//         std::cerr << "Failed to save magnetometer calibration" << std::endl;
+//     }
+// }
+
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
+
+sh2_SensorId_t IMUVisualizer::GetCurrentSensorId() const {
     if (current_sensor_index_ >= 0 && 
         current_sensor_index_ < static_cast<int>(sensor_types_.size())) {
         return sensor_types_[current_sensor_index_].second;
     }
-    return BNO085::SensorType::ROTATION_VECTOR;
+    return SH2_ROTATION_VECTOR;
 }
 
 void IMUVisualizer::ApplySensorConfiguration() {
-    BNO085::SensorType sensor_type = GetCurrentSensorType();
-    auto& config = sensor_configs_[sensor_type];
+    sh2_SensorId_t sensor_id = GetCurrentSensorId();
+    auto& config = sensor_configs_[sensor_id];
     
-    if (sensor_.enableSensor(sensor_type, config)) {
+    if (sensor_.enableSensor(sensor_id, config)) {
+        float freq = 1000000.0f / config.reportInterval_us;
         std::cout << "Applied configuration: " << sensor_types_[current_sensor_index_].first
-                  << " at " << config.getFrequency() << " Hz" << std::endl;
+                  << " at " << freq << " Hz" << std::endl;
     } else {
         std::cerr << "Failed to apply sensor configuration" << std::endl;
     }
 }
 
-void IMUVisualizer::UpdateCalibrationStatus() {
-    if (!calibration_label_) return;
+// void IMUVisualizer::UpdateAccelCalibration() {
+//     if (!accel_cal_status_) return;
     
-    BNO085::CalibrationStatus accel, gyro, mag, system;
-    sensor_.getCalibrationStatus(accel, gyro, mag, system);
+//     BNO085::CalibrationStatus accel, gyro, mag, system;
+//     sensor_.getCalibrationStatus(accel, gyro, mag, system);
     
-    std::ostringstream oss;
-    oss << "Accel:" << static_cast<int>(accel) 
-        << " Gyro:" << static_cast<int>(gyro)
-        << " Mag:" << static_cast<int>(mag)
-        << " Sys:" << static_cast<int>(system);
+//     float progress = static_cast<float>(accel) / 3.0f;
+//     accel_cal_progress_->SetValue(progress);
     
-    calibration_label_->SetText(oss.str().c_str());
-}
+//     std::string status_text;
+//     switch (accel) {
+//         case BNO085::CalibrationStatus::UNCALIBRATED:
+//             status_text = "Uncalibrated (0/3)";
+//             break;
+//         case BNO085::CalibrationStatus::LOW_ACCURACY:
+//             status_text = "Low Accuracy (1/3)";
+//             break;
+//         case BNO085::CalibrationStatus::MEDIUM_ACCURACY:
+//             status_text = "Medium Accuracy (2/3)";
+//             break;
+//         case BNO085::CalibrationStatus::HIGH_ACCURACY:
+//             status_text = "High Accuracy (3/3) ✓";
+//             break;
+//     }
+//     accel_cal_status_->SetText(status_text.c_str());
+// }
+
+// void IMUVisualizer::UpdateGyroCalibration() {
+//     if (!gyro_cal_status_) return;
+    
+//     BNO085::CalibrationStatus accel, gyro, mag, system;
+//     sensor_.getCalibrationStatus(accel, gyro, mag, system);
+    
+//     float progress = static_cast<float>(gyro) / 3.0f;
+//     gyro_cal_progress_->SetValue(progress);
+    
+//     std::string status_text;
+//     switch (gyro) {
+//         case BNO085::CalibrationStatus::UNCALIBRATED:
+//             status_text = "Uncalibrated (0/3)";
+//             break;
+//         case BNO085::CalibrationStatus::LOW_ACCURACY:
+//             status_text = "Low Accuracy (1/3)";
+//             break;
+//         case BNO085::CalibrationStatus::MEDIUM_ACCURACY:
+//             status_text = "Medium Accuracy (2/3)";
+//             break;
+//         case BNO085::CalibrationStatus::HIGH_ACCURACY:
+//             status_text = "High Accuracy (3/3) ✓";
+//             break;
+//     }
+//     gyro_cal_status_->SetText(status_text.c_str());
+// }
+
+// void IMUVisualizer::UpdateMagCalibration() {
+//     if (!mag_cal_status_) return;
+    
+//     BNO085::CalibrationStatus accel, gyro, mag, system;
+//     sensor_.getCalibrationStatus(accel, gyro, mag, system);
+    
+//     float progress = static_cast<float>(mag) / 3.0f;
+//     mag_cal_progress_->SetValue(progress);
+    
+//     std::string status_text;
+//     switch (mag) {
+//         case BNO085::CalibrationStatus::UNCALIBRATED:
+//             status_text = "Uncalibrated (0/3)";
+//             break;
+//         case BNO085::CalibrationStatus::LOW_ACCURACY:
+//             status_text = "Low Accuracy (1/3)";
+//             break;
+//         case BNO085::CalibrationStatus::MEDIUM_ACCURACY:
+//             status_text = "Medium Accuracy (2/3)";
+//             break;
+//         case BNO085::CalibrationStatus::HIGH_ACCURACY:
+//             status_text = "High Accuracy (3/3) ✓";
+//             break;
+//     }
+//     mag_cal_status_->SetText(status_text.c_str());
+    
+//     // Update magnetic field strength
+//     BNO085::MagneticFieldReading mag_reading;
+//     if (sensor_.getCalibratedMagnetometer(mag_reading)) {
+//         float mag_magnitude = mag_reading.magnetic_field.magnitude();
+//         std::ostringstream oss;
+//         oss << std::fixed << std::setprecision(1) << mag_magnitude << " µT";
+//         mag_field_strength_->SetText(oss.str().c_str());
+//     }
+// }
 
 void IMUVisualizer::UpdateSensorInfo() {
     if (!accel_label_ || !gyro_label_ || !mag_label_) return;
     
-    BNO085::IMUData imu_data;
-    BNO085::OrientationData orient_data;
+    BNO085::AccelerationReading accel_reading;
+    BNO085::AngularVelocityReading gyro_reading;
+    BNO085::MagneticFieldReading mag_reading;
+    BNO085::OrientationReading orient_reading;
     
     // Update Raw Data Tab
-    if (sensor_.getIMUData(imu_data)) {
+    if (sensor_.getCalibratedAcceleration(accel_reading)) {
         std::ostringstream oss;
-        
-        // Accelerometer
-        oss.str("");
         oss << std::fixed << std::setprecision(2);
-        oss << "X: " << std::setw(6) << imu_data.acceleration.x << "  "
-            << "Y: " << std::setw(6) << imu_data.acceleration.y << "  "
-            << "Z: " << std::setw(6) << imu_data.acceleration.z;
+        oss << "X: " << std::setw(6) << accel_reading.acceleration.x << "  "
+            << "Y: " << std::setw(6) << accel_reading.acceleration.y << "  "
+            << "Z: " << std::setw(6) << accel_reading.acceleration.z;
         accel_label_->SetText(oss.str().c_str());
-        
-        // Gyroscope
-        oss.str("");
-        oss << "X: " << std::setw(6) << imu_data.gyroscope.x << "  "
-            << "Y: " << std::setw(6) << imu_data.gyroscope.y << "  "
-            << "Z: " << std::setw(6) << imu_data.gyroscope.z;
+    }
+    
+    if (sensor_.getCalibratedGyroscope(gyro_reading)) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2);
+        oss << "X: " << std::setw(6) << gyro_reading.angular_velocity.x << "  "
+            << "Y: " << std::setw(6) << gyro_reading.angular_velocity.y << "  "
+            << "Z: " << std::setw(6) << gyro_reading.angular_velocity.z;
         gyro_label_->SetText(oss.str().c_str());
-        
-        // Magnetometer
-        oss.str("");
-        oss << "X: " << std::setw(6) << imu_data.magnetometer.x << "  "
-            << "Y: " << std::setw(6) << imu_data.magnetometer.y << "  "
-            << "Z: " << std::setw(6) << imu_data.magnetometer.z;
+    }
+    
+    if (sensor_.getCalibratedMagnetometer(mag_reading)) {
+        std::ostringstream oss;
+        oss << std::fixed << std::setprecision(2);
+        oss << "X: " << std::setw(6) << mag_reading.magnetic_field.x << "  "
+            << "Y: " << std::setw(6) << mag_reading.magnetic_field.y << "  "
+            << "Z: " << std::setw(6) << mag_reading.magnetic_field.z;
         mag_label_->SetText(oss.str().c_str());
     }
     
     // Update Euler Angles Tab
-    if (sensor_.getOrientationData(orient_data)) {
+    if (sensor_.getRotationVector(orient_reading)) {
         std::ostringstream oss;
         oss << std::fixed << std::setprecision(2);
         
-        BNO085::Vector3 euler = orient_data.rotation.toEulerAngles();
+        BNO085::Vector3 euler = orient_reading.rotation.toEulerAngles();
         
         oss.str("");
         oss << std::setw(7) << euler.x << "°";
@@ -523,23 +786,23 @@ void IMUVisualizer::UpdateSensorInfo() {
         // Update Quaternion Tab
         oss.str("");
         oss << std::setprecision(3);
-        oss << std::setw(7) << orient_data.rotation.w;
+        oss << std::setw(7) << orient_reading.rotation.w;
         quat_w_label_->SetText(oss.str().c_str());
         
         oss.str("");
-        oss << std::setw(7) << orient_data.rotation.x;
+        oss << std::setw(7) << orient_reading.rotation.x;
         quat_x_label_->SetText(oss.str().c_str());
         
         oss.str("");
-        oss << std::setw(7) << orient_data.rotation.y;
+        oss << std::setw(7) << orient_reading.rotation.y;
         quat_y_label_->SetText(oss.str().c_str());
         
         oss.str("");
-        oss << std::setw(7) << orient_data.rotation.z;
+        oss << std::setw(7) << orient_reading.rotation.z;
         quat_z_label_->SetText(oss.str().c_str());
         
         oss.str("");
-        oss << std::setw(7) << orient_data.rotation.accuracy;
+        oss << std::setw(7) << orient_reading.rotation.accuracy;
         quat_accuracy_label_->SetText(oss.str().c_str());
     }
 }
