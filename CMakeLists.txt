@@ -3,6 +3,7 @@ project(BNO085)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+
 # Find CUDA (if needed)
 find_package(CUDAToolkit)
 find_package(Open3D REQUIRED)

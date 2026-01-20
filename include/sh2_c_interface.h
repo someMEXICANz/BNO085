@@ -108,53 +108,40 @@ inline std::string sensorIdToString(sh2_SensorId_t sensorId) {
 }
 
 /**
- * @brief Print sensor value in a human-readable format
- * @param value Decoded sensor value
+ * @brief Convert SH2 status code to string
+ * @param sh2_status SH2 status code
+ * @return Human-readable status description
  */
-// inline void printSensorValue(const sh2_SensorValue_t& value) {
-//     std::cout << "[" << sensorIdToString(value.sensorId) << "] ";
-    
-//     switch (value.sensorId) {
-//         case SH2_ACCELEROMETER:
-//             std::cout << "X=" << value.un.accelerometer.x 
-//                       << " Y=" << value.un.accelerometer.y 
-//                       << " Z=" << value.un.accelerometer.z << " m/s²";
-//             break;
-            
-//         case SH2_GYROSCOPE_CALIBRATED:
-//             std::cout << "X=" << value.un.gyroscope.x 
-//                       << " Y=" << value.un.gyroscope.y 
-//                       << " Z=" << value.un.gyroscope.z << " rad/s";
-//             break;
-            
-//         case SH2_MAGNETIC_FIELD_CALIBRATED:
-//             std::cout << "X=" << value.un.magneticField.x 
-//                       << " Y=" << value.un.magneticField.y 
-//                       << " Z=" << value.un.magneticField.z << " µT";
-//             break;
-            
-//         case SH2_ROTATION_VECTOR:
-//             {
-//                 float yaw, pitch, roll;
-//                 q_to_ypr(value.un.rotationVector.real,
-//                          value.un.rotationVector.i,
-//                          value.un.rotationVector.j,
-//                          value.un.rotationVector.k,
-//                          &yaw, &pitch, &roll);
-                
-//                 std::cout << "Yaw=" << (yaw * 180.0f / M_PI) 
-//                           << "° Pitch=" << (pitch * 180.0f / M_PI)
-//                           << "° Roll=" << (roll * 180.0f / M_PI) << "°";
-//             }
-//             break;
-            
-//         default:
-//             std::cout << "Data available";
-//             break;
-//     }
-    
-//     std::cout << " (Status=" << static_cast<int>(value.status) << ")" << std::endl;
-// }
+inline std::string StatustoString(uint8_t sh2_status) {
+    switch (sh2_status) {
+        case 0: return "UNRELIABLE";
+        case 1: return "LOW";
+        case 2: return "MEDIUM";
+        case 3: return "HIGH";
+        default: return "UNRELIABLE"; // Fallback for unknown values
+    }
+}
+
+/**
+ * @brief Convert calibration status to string
+ * @param status SH2 calibration status
+ * @return Human-readable calibration status description
+ */
+inline std::string calibrationStatusToString(sh2_CalStatus_t status) {
+    switch (status) {
+        case sh2_CalStatus_t::SH2_CAL_SUCCESS:                  return "Success";
+        case sh2_CalStatus_t::SH2_CAL_NO_ZRO:                   return "No zero-rate output detected";
+        case sh2_CalStatus_t::SH2_CAL_NO_STATIONARY_DETECTION:  return "No stationary period detected";
+        case sh2_CalStatus_t::SH2_CAL_ROTATION_OUTSIDE_SPEC:    return "Rotation outside specification";
+        case sh2_CalStatus_t::SH2_CAL_ZRO_OUTSIDE_SPEC:         return "Zero-rate output outside specification";
+        case sh2_CalStatus_t::SH2_CAL_ZGO_OUTSIDE_SPEC:         return "Zero-g output outside specification";
+        case sh2_CalStatus_t::SH2_CAL_GYRO_GAIN_OUTSIDE_SPEC:   return "Gyro gain outside specification";
+        case sh2_CalStatus_t::SH2_CAL_GYRO_PERIOD_OUTSIDE_SPEC: return "Gyro period outside specification";
+        case sh2_CalStatus_t::SH2_CAL_GYRO_DROPS_OUTSIDE_SPEC:  return "Gyro drops outside specification";
+        default:                                                return "Unknown status (" + 
+                                                                        std::to_string(static_cast<int>(status)) + ")";
+    }
+}
 
 #endif // __cplusplus
 

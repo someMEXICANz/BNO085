@@ -13,6 +13,9 @@
 #include <atomic>
 #include <gpiod.h>
 #include <cstring>
+#include "sh2.h"
+#include "sh2_err.h"
+#include "sh2_SensorValue.h"
 
 class BNO085 {
 public:
@@ -35,10 +38,10 @@ public:
     struct Quaternion {
         float w, x, y, z;
         float accuracy;  // Accuracy estimate in radians (for rotation vector)
-        
-        Quaternion() : w(1), x(0), y(0), z(0), accuracy(0) {}
+        bool has_accuracy;
+        Quaternion() : w(1), x(0), y(0), z(0), accuracy(0), has_accuracy(false) {}
         Quaternion(float w, float x, float y, float z, float acc = -1) 
-            : w(w), x(x), y(y), z(z), accuracy(acc) {}
+            : w(w), x(x), y(y), z(z), accuracy(acc), has_accuracy(acc >= 0) {}
         
         // Utility methods
         Vector3 toEulerAngles() const;  // Returns yaw, pitch, roll in degrees
@@ -48,13 +51,7 @@ public:
     // ==========================================================================
     // ENUMS
     // ==========================================================================
-    
-    enum class CalibrationStatus {
-        UNCALIBRATED = 0,
-        LOW_ACCURACY = 1,
-        MEDIUM_ACCURACY = 2,
-        HIGH_ACCURACY = 3
-    };
+
     
     enum class ResetPin {
         NONE = -1,          // No hardware reset
@@ -73,49 +70,68 @@ public:
         PIN_37 = 86,        // Physical pin 37 (PN.02)
     };
 
+
+
     // ==========================================================================
     // SENSOR READINGS
     // ==========================================================================
     
+
+
+    struct Metadata  { //Represents Common header 
+        sh2_SensorId_t sensor_id;
+        uint8_t sequence;               // Sequence number
+        std::string status;                 // Calibration quality
+        uint32_t delay;                 // Report delivery delay
+        uint32_t report_timestamp;      // Sensor timestamp in microseconds
+
+        
+        Metadata() 
+            : sensor_id(SH2_MAX_SENSOR_ID), delay(0), sequence(0), 
+              status("UNRELIABLE"), report_timestamp(0) {}
+    };
+
     struct SensorReading {
-        sh2_SensorId_t sensor_id;   // Which specific sensor produced this data
-        uint64_t timestamp_us;
-        uint8_t status;              // 0=unreliable, 1=low, 2=medium, 3=high accuracy
-        uint8_t sequence;
-        
-        SensorReading() : sensor_id(SH2_MAX_SENSOR_ID), timestamp_us(0), status(0), sequence(0) {}
-        
-        std::string getSensorIdString() const { return sensorIdToString(sensor_id); }
+        Metadata meta;
+        SensorReading() : meta() {}
+
+        std::string getSensorIdString() const { return sensorIdToString(meta.sensor_id); }
     };
 
     struct AccelerationReading : public SensorReading {
         Vector3 acceleration;  // Acceleration in m/s²
-        
-        AccelerationReading() = default;
+        uint32_t sensor_timestamp; // Sensor timestamp in microseconds
+        bool has_timestamp;
+
+        AccelerationReading() : has_timestamp(false), sensor_timestamp(0) {}
     };
 
     struct AngularVelocityReading : public SensorReading {
         Vector3 angular_velocity;  // Angular velocity in rad/s
         Vector3 bias;              // Only valid for uncalibrated gyro
         bool has_bias;
-        
-        AngularVelocityReading() : has_bias(false) {}
+        uint32_t sensor_timestamp; // Sensor timestamp in microseconds
+        bool has_timestamp;
+
+        AngularVelocityReading() : has_bias(false), has_timestamp(false), sensor_timestamp(0) {}
     };
 
     struct MagneticFieldReading : public SensorReading {
         Vector3 magnetic_field;  // Magnetic field in µT
         Vector3 bias;            // Only valid for uncalibrated mag
         bool has_bias;
+        uint32_t sensor_timestamp; // Sensor timestamp in microseconds
+        bool has_timestamp;
         
-        MagneticFieldReading() : has_bias(false) {}
+        MagneticFieldReading() : has_bias(false), has_timestamp(false), sensor_timestamp(0) {}
     };
 
     struct OrientationReading : public SensorReading {
         Quaternion rotation;
-        Vector3 euler;      // Computed from quaternion (yaw, pitch, roll in degrees)
-        float accuracy;     // Accuracy estimate in radians (0 if not available)
-        
-        OrientationReading() : accuracy(0.0f) {}
+        Vector3 euler;      // Computed from quaternion (yaw, pitch, roll in degrees)        
+        Vector3 angular_velocity; // Optional angular velocity in rad/s
+        bool has_angular_velocity;
+        OrientationReading() : has_angular_velocity(false) {}
     };
     
     // ==========================================================================
@@ -151,7 +167,7 @@ public:
     void releaseGPIO();
 
     // ==========================================================================
-    // SERVICE CONTROL
+    // SERVICE METHODS
     // ==========================================================================
     
     bool initialize();
@@ -183,6 +199,31 @@ public:
         cfg.sensorSpecific = 0;
         return cfg;
     }
+
+    static sh2_SensorConfig_t createSensorConfig(float frequency_hz, 
+                                                  bool wakeup, 
+                                                  bool always_on,
+                                                  bool change_sensitivity_enabled,
+                                                  bool change_sensitivity_relative,
+                                                  uint16_t change_sensitivity,
+                                                  uint32_t batch_interval_us,
+                                                  uint32_t sensor_specific ) {
+
+                                                    
+        sh2_SensorConfig_t cfg;
+        memset(&cfg, 0, sizeof(cfg));
+        cfg.reportInterval_us = static_cast<uint32_t>(1000000.0f / frequency_hz);
+        cfg.wakeupEnabled = wakeup;
+        cfg.alwaysOnEnabled = always_on;
+        cfg.changeSensitivityEnabled = change_sensitivity_enabled;
+        cfg.changeSensitivityRelative = change_sensitivity_relative;
+        cfg.changeSensitivity = change_sensitivity;
+        cfg.batchInterval_us = batch_interval_us;
+        cfg.sensorSpecific = sensor_specific;
+        return cfg;
+    }
+
+
     
     // Primary API - uses sh2 config directly (full control)
     bool enableSensor(sh2_SensorId_t sensor_id, const sh2_SensorConfig_t& config);
@@ -264,13 +305,22 @@ public:
     // ==========================================================================
     // CALIBRATION
     // ==========================================================================
-    
-    void getCalibrationStatus(CalibrationStatus& accel, CalibrationStatus& gyro, 
-                              CalibrationStatus& mag, CalibrationStatus& system);
-    bool isFullyCalibrated();
-    bool startCalibration(uint32_t interval_us = 10000);
-    bool finishCalibration();
+       // Calibration methods
+    bool enableDynamicCalibration(bool accel, bool gyro, bool mag);
     bool saveCalibration();
+    bool clearCalibration();
+    // CalibrationStatus getCalibrationStatus();
+    
+    // Simple calibration
+    bool startManualCalibration();
+    sh2_CalStatus_t finishManualCalibration();
+    
+    // Taring methods
+    bool tareAllAxes();
+    bool tareZAxis();
+    bool clearTare();
+    bool persistTare();
+    bool setCustomOrientation(const Quaternion& orientation);
         
     // ==========================================================================
     // CALLBACKS
@@ -324,7 +374,6 @@ private:
     std::map<sh2_SensorId_t, AngularVelocityReading> latest_angular_velocity_;
     std::map<sh2_SensorId_t, MagneticFieldReading> latest_magnetic_field_;
     std::map<sh2_SensorId_t, OrientationReading> latest_orientation_;
-    std::map<sh2_SensorId_t, sh2_SensorValue_t> latest_sensor_data_;  // Generic storage
 
     // Callbacks - category-wide
     AccelerationCallback accel_callback_;
@@ -339,6 +388,8 @@ private:
     std::map<sh2_SensorId_t, AngularVelocityCallback> angular_vel_callbacks_;
     std::map<sh2_SensorId_t, MagneticFieldCallback> mag_field_callbacks_;
     std::map<sh2_SensorId_t, OrientationCallback> orientation_callbacks_;
+
+    std::map<sh2_SensorId_t, sh2_SensorConfig_t> enabled_sensors_;
     
     // ==========================================================================
     // PRIVATE METHODS
@@ -353,8 +404,14 @@ private:
     
     // Instance callback handlers
     void handleAsyncEvent(sh2_AsyncEvent_t* event);
+    void handleShtpError(sh2_ShtpEvent_t shtpEvent);
+    void handleFeatureResponse(const sh2_SensorConfigResp_t& resp);
+    void handleResetEvent();
+    //Continous Response
     void handleSensorEvent(sh2_SensorEvent_t* event);
+
     
+
     // Data processing - category-specific update methods
     void updateAccelerationData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value);
     void updateAngularVelocityData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value);

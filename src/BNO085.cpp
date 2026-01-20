@@ -250,10 +250,7 @@ bool BNO085::initialize() {
     // Initialize GPIO if reset pin configured
     if (reset_pin_ != ResetPin::NONE) {
         if (initializeGPIO()) {
-            // Optionally perform hardware reset
-            // if (!hardwareReset()) {
-            //     std::cerr << "Warning: Hardware reset failed, continuing anyway..." << std::endl;
-            // }
+        
         } else {
             std::cerr << "Warning: GPIO initialization failed. Hardware reset unavailable." << std::endl;
         }
@@ -339,9 +336,8 @@ bool BNO085::enableSensor(sh2_SensorId_t sensor_id, const sh2_SensorConfig_t& co
         setError("Failed to enable sensor " + sensorIdToString(sensor_id) + ": " + sh2ErrorToString(result));
         return false;
     }
-    
-    std::cout << "Enabled sensor: " << sensorIdToString(sensor_id) 
-              << " at " << (1000000.0f / config.reportInterval_us) << " Hz" << std::endl;
+    enabled_sensors_[sensor_id] = config;
+    std::cout << "Enabled sensor: " << sensorIdToString(sensor_id) << std::endl;
     
     return true;
 }
@@ -382,7 +378,7 @@ bool BNO085::getSensorConfig(sh2_SensorId_t sensor_id, sh2_SensorConfig_t& confi
 }
 
 // =============================================================================
-// DATA READING - Generic getters by sensor ID
+// DATA READING by sensor ID
 // =============================================================================
 
 bool BNO085::getAccelerationData(sh2_SensorId_t sensor_id, AccelerationReading& data) {
@@ -392,10 +388,7 @@ bool BNO085::getAccelerationData(sh2_SensorId_t sensor_id, AccelerationReading& 
     if (it == latest_acceleration_.end()) {
         return false;  // This sensor hasn't been enabled or no data yet
     }
-    
-    if (it->second.timestamp_us == 0) {
-        return false;  // No data received yet
-    }
+
     
     data = it->second;
     return true;
@@ -406,10 +399,6 @@ bool BNO085::getAngularVelocityData(sh2_SensorId_t sensor_id, AngularVelocityRea
     
     auto it = latest_angular_velocity_.find(sensor_id);
     if (it == latest_angular_velocity_.end()) {
-        return false;
-    }
-    
-    if (it->second.timestamp_us == 0) {
         return false;
     }
     
@@ -424,10 +413,7 @@ bool BNO085::getMagneticFieldData(sh2_SensorId_t sensor_id, MagneticFieldReading
     if (it == latest_magnetic_field_.end()) {
         return false;
     }
-    
-    if (it->second.timestamp_us == 0) {
-        return false;
-    }
+
     
     data = it->second;
     return true;
@@ -440,10 +426,7 @@ bool BNO085::getOrientationData(sh2_SensorId_t sensor_id, OrientationReading& da
     if (it == latest_orientation_.end()) {
         return false;
     }
-    
-    if (it->second.timestamp_us == 0) {
-        return false;
-    }
+
     
     data = it->second;
     return true;
@@ -453,83 +436,304 @@ bool BNO085::getOrientationData(sh2_SensorId_t sensor_id, OrientationReading& da
 // CALIBRATION
 // =============================================================================
 
-// void BNO085::getCalibrationStatus(CalibrationStatus& accel, CalibrationStatus& gyro, 
-//                                    CalibrationStatus& mag, CalibrationStatus& system) {
-//     if (!initialized_) {
-//         accel = gyro = mag = system = CalibrationStatus::UNCALIBRATED;
-//         return;
-//     }
-    
-//     sh2_CalStatus_t calStatus;
-//     int result = sh2_getCalibrationStatus(&calStatus);
-//     if (result != SH2_OK) {
-//         accel = gyro = mag = system = CalibrationStatus::UNCALIBRATED;
-//         return;
-//     }
-    
-//     accel = static_cast<CalibrationStatus>(calStatus.accel);
-//     gyro = static_cast<CalibrationStatus>(calStatus.gyro);
-//     mag = static_cast<CalibrationStatus>(calStatus.mag);
-//     system = static_cast<CalibrationStatus>(calStatus.system);
-// }
 
-// bool BNO085::isFullyCalibrated() {
-//     CalibrationStatus accel, gyro, mag, system;
-//     getCalibrationStatus(accel, gyro, mag, system);
+bool BNO085::enableDynamicCalibration(bool accel, bool gyro, bool mag) {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
     
-//     return (accel == CalibrationStatus::HIGH_ACCURACY &&
-//             gyro == CalibrationStatus::HIGH_ACCURACY &&
-//             mag == CalibrationStatus::HIGH_ACCURACY &&
-//             system == CalibrationStatus::HIGH_ACCURACY);
-// }
+    // Build calibration configuration flags
+    uint8_t config = 0;
+    
+    if (accel) {
+        config |= SH2_CAL_ACCEL;
+    }
+    if (gyro) {
+        config |= SH2_CAL_GYRO;
+    }
+    if (mag) {
+        config |= SH2_CAL_MAG;
+    }
+    
+    // Set the calibration configuration
+    int result = sh2_setCalConfig(config);
+    if (result != SH2_OK) {
+        setError("Failed to configure dynamic calibration: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    std::cout << "Dynamic calibration configured: "
+              << (accel ? "Accel " : "")
+              << (gyro ? "Gyro " : "")
+              << (mag ? "Mag" : "") << std::endl;
+    
+    // Enable automatic DCD saving every 5 seconds
+    result = sh2_setDcdAutoSave(true);
+    if (result != SH2_OK) {
+        setError("Failed to enable auto-save: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    std::cout << "Automatic calibration saving enabled (every 5 seconds)" << std::endl;
+    
+    return true;
+}
 
-// bool BNO085::startCalibration(uint32_t interval_us) {
-//     if (!initialized_) {
-//         setError("Sensor not initialized");
-//         return false;
-//     }
+bool BNO085::saveCalibration() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
     
-//     int result = sh2_startCal(interval_us);
-//     if (result != SH2_OK) {
-//         setError("Failed to start calibration: " + sh2ErrorToString(result));
-//         return false;
-//     }
+    std::cout << "Saving dynamic calibration data to flash..." << std::endl;
     
-//     std::cout << "Calibration started" << std::endl;
-//     return true;
-// }
+    int result = sh2_saveDcdNow();
+    if (result != SH2_OK) {
+        setError("Failed to save calibration: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give the sensor time to complete the flash write
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "Calibration data saved successfully" << std::endl;
+    return true;
+}
 
-// bool BNO085::finishCalibration() {
-//     if (!initialized_) {
-//         setError("Sensor not initialized");
-//         return false;
-//     }
+bool BNO085::clearCalibration() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
     
-//     int result = sh2_finishCal();
-//     if (result != SH2_OK) {
-//         setError("Failed to finish calibration: " + sh2ErrorToString(result));
-//         return false;
-//     }
+    std::cout << "Clearing calibration data and resetting sensor..." << std::endl;
     
-//     std::cout << "Calibration finished" << std::endl;
-//     return true;
-// }
+    // Stop service thread before reset
+    bool was_running = service_running_;
+    if (was_running) {
+        stopService();
+    }
+    
+    // Clear DCD and reset (atomic operation)
+    int result = sh2_clearDcdAndReset();
+    if (result != SH2_OK) {
+        setError("Failed to clear calibration: " + sh2ErrorToString(result));
+        if (was_running) {
+            startService();
+        }
+        return false;
+    }
+    
+    // Wait for reset to complete
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    
+    // Restart service if it was running
+    if (was_running) {
+        startService();
+    }
+    
+    std::cout << "Calibration cleared and sensor reset" << std::endl;
+    return true;
+}
 
-// bool BNO085::saveCalibration() {
-//     if (!initialized_) {
-//         setError("Sensor not initialized");
-//         return false;
-//     }
+bool BNO085::startManualCalibration() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
     
-//     int result = sh2_saveDcdNow();
-//     if (result != SH2_OK) {
-//         setError("Failed to save calibration: " + sh2ErrorToString(result));
-//         return false;
-//     }
+    std::cout << "Starting manual calibration procedure..." << std::endl;
+    std::cout << "Instructions:" << std::endl;
+    std::cout << "  1. Keep sensor stationary for 2 seconds" << std::endl;
+    std::cout << "  2. Rotate sensor 180 degrees smoothly" << std::endl;
+    std::cout << "  3. Keep sensor stationary for 2 seconds" << std::endl;
+    std::cout << "  4. Call finishManualCalibration() when done" << std::endl;
     
-//     std::cout << "Calibration data saved" << std::endl;
-//     return true;
-// }
+    // Start calibration with 10ms report interval (100 Hz)
+    uint32_t interval_us = 10000;
+    int result = sh2_startCal(interval_us);
+    
+    if (result != SH2_OK) {
+        setError("Failed to start calibration: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    std::cout << "Calibration started. Waiting for sensor to be ready..." << std::endl;
+    
+    // Give sensor time to prepare
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    
+    std::cout << "Sensor ready. Begin 180-degree rotation now." << std::endl;
+    
+    return true;
+}
+
+sh2_CalStatus_t BNO085::finishManualCalibration() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return sh2_CalStatus_t::SH2_CAL_NO_STATIONARY_DETECTION;
+    }
+    
+    std::cout << "Finishing manual calibration..." << std::endl;
+    
+    sh2_CalStatus_t status;
+    int result = sh2_finishCal(&status);
+    
+    if (result != SH2_OK) {
+        setError("Failed to finish calibration: " + sh2ErrorToString(result));
+        return status;
+    }
+    
+    // Report calibration result
+    std::cout << "Calibration result: " << calibrationStatusToString(status) << std::endl;
+    
+    if (status == sh2_CalStatus_t::SH2_CAL_SUCCESS) {
+        std::cout << "SUCCESS! Calibration data saved to flash." << std::endl;
+        std::cout << "IMPORTANT: Sensor must be reset for new calibration to take effect." << std::endl;
+        std::cout << "Call reset() or perform a hardware reset." << std::endl;
+    } else {
+        std::cout << "FAILED! Calibration unsuccessful." << std::endl;
+        std::cout << "Try again, ensuring:" << std::endl;
+        std::cout << "  - Sensor is held steady at start and end" << std::endl;
+        std::cout << "  - Rotation is smooth and approximately 180 degrees" << std::endl;
+        std::cout << "  - Rotation takes 2-5 seconds" << std::endl;
+    }
+    
+    return status;
+}
+
+bool BNO085::tareAllAxes() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
+    
+    std::cout << "Taring all axes (X, Y, Z)..." << std::endl;
+    std::cout << "Current orientation will become the new reference frame." << std::endl;
+    
+    // Tare all three axes using rotation vector as basis
+    int result = sh2_setTareNow(SH2_TARE_X | SH2_TARE_Y | SH2_TARE_Z, 
+                                SH2_TARE_BASIS_ROTATION_VECTOR);
+    
+    if (result != SH2_OK) {
+        setError("Failed to tare all axes: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give sensor time to apply the tare
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "All axes tared successfully." << std::endl;
+    std::cout << "Use persistTare() to save this tare to flash." << std::endl;
+    
+    return true;
+}
+
+bool BNO085::tareZAxis() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
+    
+    std::cout << "Taring Z-axis (heading only)..." << std::endl;
+    std::cout << "Current heading will become the new zero heading." << std::endl;
+    
+    // Tare only Z axis (heading) using rotation vector as basis
+    int result = sh2_setTareNow(SH2_TARE_Z, SH2_TARE_BASIS_ROTATION_VECTOR);
+    
+    if (result != SH2_OK) {
+        setError("Failed to tare Z-axis: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give sensor time to apply the tare
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "Z-axis tared successfully." << std::endl;
+    std::cout << "Note: For Game Rotation Vector, sensor must be reset for tare to take effect." << std::endl;
+    std::cout << "Use persistTare() to save this tare to flash." << std::endl;
+    
+    return true;
+}
+
+bool BNO085::clearTare() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
+    
+    std::cout << "Clearing tare..." << std::endl;
+    
+    int result = sh2_clearTare();
+    
+    if (result != SH2_OK) {
+        setError("Failed to clear tare: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give sensor time to clear the tare
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "Tare cleared. Sensor orientation reset to default." << std::endl;
+    
+    return true;
+}
+
+bool BNO085::persistTare() {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
+    
+    std::cout << "Saving tare to flash memory..." << std::endl;
+    
+    int result = sh2_persistTare();
+    
+    if (result != SH2_OK) {
+        setError("Failed to persist tare: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give sensor time to complete the flash write
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "Tare saved to flash. Will persist across resets." << std::endl;
+    std::cout << "Note: Game Rotation Vector does not persist tare." << std::endl;
+    
+    return true;
+}
+
+bool BNO085::setCustomOrientation(const Quaternion& orientation) {
+    if (!initialized_) {
+        setError("Sensor not initialized");
+        return false;
+    }
+    
+    std::cout << "Setting custom orientation: " << orientation.toString() << std::endl;
+    
+    // Convert our Quaternion to sh2_Quaternion_t
+    sh2_Quaternion_t sh2_quat;
+    sh2_quat.w = orientation.w;
+    sh2_quat.x = orientation.x;
+    sh2_quat.y = orientation.y;
+    sh2_quat.z = orientation.z;
+
+    int result = sh2_setReorientation(&sh2_quat);
+    
+    if (result != SH2_OK) {
+        setError("Failed to set custom orientation: " + sh2ErrorToString(result));
+        return false;
+    }
+    
+    // Give sensor time to apply the reorientation
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    
+    std::cout << "Custom orientation applied." << std::endl;
+    std::cout << "To clear this, call clearTare() or setCustomOrientation with identity quaternion." << std::endl;
+    
+    return true;
+}
 
 // =============================================================================
 // DIAGNOSTICS AND STATUS
@@ -566,7 +770,6 @@ bool BNO085::isConnected() {
     if (!hal_) {
         return false;
     }
-    
     return isI2CDevicePresent(hal_);
 }
 
@@ -669,17 +872,15 @@ void BNO085::sensorCallbackWrapper(void* cookie, sh2_SensorEvent_t* event) {
 void BNO085::handleAsyncEvent(sh2_AsyncEvent_t* event) {
     switch (event->eventId) {
         case SH2_RESET:
-            std::cout << "BNO085: Reset complete" << std::endl;
-            reset_occurred_ = true;
+            handleResetEvent();
             break;
             
         case SH2_GET_FEATURE_RESP:
-            // std::cout << "BNO085: Feature response for sensor " 
-            //           << static_cast<int>(event->sh2SensorConfigResp.sensorId) << std::endl;
+            handleFeatureResponse(event->sh2SensorConfigResp);
             break;
             
         case SH2_SHTP_EVENT:
-            // std::cout << "BNO085: SHTP event " << event->shtpEvent << std::endl;
+            handleShtpError(event->shtpEvent);
             break;
             
         default:
@@ -688,6 +889,163 @@ void BNO085::handleAsyncEvent(sh2_AsyncEvent_t* event) {
     }
 }
 
+
+void BNO085::handleFeatureResponse(const sh2_SensorConfigResp_t& resp) {
+        std::cout << "Feature Response for " << sensorIdToString(resp.sensorId) << ":" << std::endl;
+        std::cout << "  Report Interval: " << resp.sensorConfig.reportInterval_us << " µs "
+                  << "(" << (1000000.0f / resp.sensorConfig.reportInterval_us) << " Hz)" << std::endl;
+        
+        if (resp.sensorConfig.batchInterval_us > 0) {
+            std::cout << "  Batch Interval: " << resp.sensorConfig.batchInterval_us << " µs" << std::endl;
+        }
+        
+        std::cout << "  Flags: ";
+        if (resp.sensorConfig.changeSensitivityEnabled) {
+            std::cout << "ChangeSensitivity("
+                     << (resp.sensorConfig.changeSensitivityRelative ? "Relative" : "Absolute")
+                     << "=" << resp.sensorConfig.changeSensitivity << ") ";
+        }
+        if (resp.sensorConfig.wakeupEnabled) {
+            std::cout << "Wakeup ";
+        }
+        if (resp.sensorConfig.alwaysOnEnabled) {
+            std::cout << "AlwaysOn ";
+        }
+        if (!resp.sensorConfig.changeSensitivityEnabled && 
+            !resp.sensorConfig.wakeupEnabled && 
+            !resp.sensorConfig.alwaysOnEnabled) {
+            std::cout << "None";
+        }
+        std::cout << std::endl;
+        
+        if (resp.sensorConfig.sensorSpecific != 0) {
+            std::cout << "  Sensor Specific: 0x" << std::hex << resp.sensorConfig.sensorSpecific 
+                     << std::dec << std::endl;
+        }
+    }
+
+void BNO085::handleShtpError(sh2_ShtpEvent_t shtpEvent) {
+        std::string errorMsg = "SHTP Protocol Error: ";
+        
+        switch (shtpEvent) {
+            case SH2_SHTP_TX_DISCARD:
+                errorMsg += "TX Discard - Transmitted data was discarded";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Communication buffer overflow" << std::endl;
+                break;
+                
+            case SH2_SHTP_SHORT_FRAGMENT:
+                errorMsg += "Short Fragment - Received fragment too short";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: I2C communication corruption" << std::endl;
+                break;
+                
+            case SH2_SHTP_TOO_LARGE_PAYLOADS:
+                errorMsg += "Too Large Payload - Payload exceeds buffer size";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Sensor sending more data than expected" << std::endl;
+                break;
+                
+            case SH2_SHTP_BAD_RX_CHAN:
+                errorMsg += "Bad RX Channel - Invalid receive channel";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Protocol desynchronization" << std::endl;
+                break;
+                
+            case SH2_SHTP_BAD_TX_CHAN:
+                errorMsg += "Bad TX Channel - Invalid transmit channel";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Internal software error" << std::endl;
+                break;
+                
+            case SH2_SHTP_BAD_FRAGMENT:
+                errorMsg += "Bad Fragment - Malformed data fragment";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: I2C noise or timing issues" << std::endl;
+                break;
+                
+            case SH2_SHTP_BAD_SN:
+                errorMsg += "Bad Sequence Number - Data packet out of order";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Missed packets or comm errors" << std::endl;
+                break;
+                
+            case SH2_SHTP_INTERRUPTED_PAYLOAD:
+                errorMsg += "Interrupted Payload - Data transfer was interrupted";
+                std::cerr << errorMsg << std::endl;
+                std::cerr << "  Possible cause: Reset during data transfer" << std::endl;
+                break;
+                
+            default:
+                errorMsg += "Unknown SHTP event code: " + std::to_string(shtpEvent);
+                std::cerr << errorMsg << std::endl;
+                break;
+        }
+    }
+
+
+void BNO085::handleResetEvent() {
+        std::cout << "=== BNO085 Reset Complete ===" << std::endl;
+        
+        // Set the reset flag
+        reset_occurred_ = true;
+        
+        // Log reset information
+        sh2_ProductIds_t prodIds;
+        if (sh2_getProdIds(&prodIds) == SH2_OK && prodIds.numEntries > 0) {
+            std::cout << "Reset cause: ";
+            switch (prodIds.entry[0].resetCause) {
+                case 0: std::cout << "Unknown" << std::endl; break;
+                case 1: std::cout << "Power-On Reset" << std::endl; break;
+                case 2: std::cout << "Internal System Reset" << std::endl; break;
+                case 3: std::cout << "Watchdog Timer Reset" << std::endl; break;
+                case 4: std::cout << "External Reset" << std::endl; break;
+                case 5: std::cout << "Other" << std::endl; break;
+                default: std::cout << "Code " << static_cast<int>(prodIds.entry[0].resetCause) << std::endl;
+            }
+        }
+        
+        std::cout << "All sensor configurations have been cleared." << std::endl;
+        std::cout << "Re-enable sensors as needed." << std::endl;
+        
+        // Clear cached sensor data since it's no longer valid
+        {
+            std::lock_guard<std::mutex> lock(data_mutex_);
+            latest_acceleration_.clear();
+            latest_angular_velocity_.clear();
+            latest_magnetic_field_.clear();
+            latest_orientation_.clear();
+        }
+        
+        // Notify via error callback if registered (use as general event notification)
+        if (error_callback_) {
+            error_callback_("RESET_EVENT: Sensor hub has been reset");
+        }
+
+
+        // Auto-reconfigure sensors
+    if (!enabled_sensors_.empty()) {
+        std::cout << "Auto-reconfiguring " << enabled_sensors_.size() << " sensors..." << std::endl;
+        
+        for (auto it = enabled_sensors_.begin(); it != enabled_sensors_.end(); ++it) {
+            sh2_SensorId_t sensor_id = it->first;
+            const sh2_SensorConfig_t& config = it->second;
+            
+            std::cout << "  Re-enabling " << sensorIdToString(sensor_id) << "..." << std::endl;
+            
+            // Small delay between sensor configurations
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            
+            int result = sh2_setSensorConfig(sensor_id, &config);
+            if (result != SH2_OK) {
+                std::cerr << "    Failed to re-enable: " << sh2ErrorToString(result) << std::endl;
+            } else {
+                std::cout << "    Success" << std::endl;
+            }
+        }
+    }
+}
+    
 void BNO085::handleSensorEvent(sh2_SensorEvent_t* event) {
     sh2_SensorValue_t value;
     
@@ -696,12 +1054,7 @@ void BNO085::handleSensorEvent(sh2_SensorEvent_t* event) {
         setError("Failed to decode sensor event");
         return;
     }
-    
-    // Store generic data
-    {
-        std::lock_guard<std::mutex> lock(data_mutex_);
-        latest_sensor_data_[value.sensorId] = value;
-    }
+
     
     // Route to category-specific update methods
     switch (value.sensorId) {
@@ -754,35 +1107,41 @@ void BNO085::handleSensorEvent(sh2_SensorEvent_t* event) {
 
 void BNO085::updateAccelerationData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value) {
     AccelerationReading reading;
-    reading.sensor_id = sensor_id;
-    reading.timestamp_us = value.timestamp;
-    reading.status = value.status;
-    reading.sequence = value.sequence;
-    
+    reading.meta.sensor_id = sensor_id;
+    reading.meta.sequence = value.sequence;
+    reading.meta.status = StatustoString(value.status);
+    reading.meta.delay = value.delay;
+    reading.meta.report_timestamp = value.timestamp;
+
     // Extract acceleration based on sensor type
     switch (sensor_id) {
         case SH2_RAW_ACCELEROMETER:
             reading.acceleration.x = value.un.rawAccelerometer.x;
             reading.acceleration.y = value.un.rawAccelerometer.y;
             reading.acceleration.z = value.un.rawAccelerometer.z;
+            reading.sensor_timestamp = value.un.rawAccelerometer.timestamp;
+            reading.has_timestamp = true;
             break;
             
         case SH2_ACCELEROMETER:
             reading.acceleration.x = value.un.accelerometer.x;
             reading.acceleration.y = value.un.accelerometer.y;
             reading.acceleration.z = value.un.accelerometer.z;
+            reading.has_timestamp = false;
             break;
             
         case SH2_LINEAR_ACCELERATION:
             reading.acceleration.x = value.un.linearAcceleration.x;
             reading.acceleration.y = value.un.linearAcceleration.y;
             reading.acceleration.z = value.un.linearAcceleration.z;
+            reading.has_timestamp = false;
             break;
             
         case SH2_GRAVITY:
             reading.acceleration.x = value.un.gravity.x;
             reading.acceleration.y = value.un.gravity.y;
             reading.acceleration.z = value.un.gravity.z;
+            reading.has_timestamp = false;
             break;
             
         default:
@@ -809,17 +1168,20 @@ void BNO085::updateAccelerationData(sh2_SensorId_t sensor_id, const sh2_SensorVa
 
 void BNO085::updateAngularVelocityData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value) {
     AngularVelocityReading reading;
-    reading.sensor_id = sensor_id;
-    reading.timestamp_us = value.timestamp;
-    reading.status = value.status;
-    reading.sequence = value.sequence;
-    
+    reading.meta.sensor_id = sensor_id;
+    reading.meta.sequence = value.sequence;
+    reading.meta.status = StatustoString(value.status);
+    reading.meta.delay = value.delay;
+    reading.meta.report_timestamp = value.timestamp;
+
     // Extract angular velocity based on sensor type
     switch (sensor_id) {
         case SH2_RAW_GYROSCOPE:
             reading.angular_velocity.x = value.un.rawGyroscope.x;
             reading.angular_velocity.y = value.un.rawGyroscope.y;
             reading.angular_velocity.z = value.un.rawGyroscope.z;
+            reading.sensor_timestamp = value.un.rawGyroscope.timestamp;
+            reading.has_timestamp = true;
             reading.has_bias = false;
             break;
             
@@ -827,6 +1189,7 @@ void BNO085::updateAngularVelocityData(sh2_SensorId_t sensor_id, const sh2_Senso
             reading.angular_velocity.x = value.un.gyroscope.x;
             reading.angular_velocity.y = value.un.gyroscope.y;
             reading.angular_velocity.z = value.un.gyroscope.z;
+            reading.has_timestamp = false;
             reading.has_bias = false;
             break;
             
@@ -864,11 +1227,12 @@ void BNO085::updateAngularVelocityData(sh2_SensorId_t sensor_id, const sh2_Senso
 
 void BNO085::updateMagneticFieldData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value) {
     MagneticFieldReading reading;
-    reading.sensor_id = sensor_id;
-    reading.timestamp_us = value.timestamp;
-    reading.status = value.status;
-    reading.sequence = value.sequence;
-    
+    reading.meta.sensor_id = sensor_id;
+    reading.meta.sequence = value.sequence;
+    reading.meta.status = StatustoString(value.status);
+    reading.meta.delay = value.delay;
+    reading.meta.report_timestamp = value.timestamp;
+
     // Extract magnetic field based on sensor type
     switch (sensor_id) {
         case SH2_RAW_MAGNETOMETER:
@@ -919,11 +1283,12 @@ void BNO085::updateMagneticFieldData(sh2_SensorId_t sensor_id, const sh2_SensorV
 
 void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorValue_t& value) {
     OrientationReading reading;
-    reading.sensor_id = sensor_id;
-    reading.timestamp_us = value.timestamp;
-    reading.status = value.status;
-    reading.sequence = value.sequence;
-    
+    reading.meta.sensor_id = sensor_id;
+    reading.meta.sequence = value.sequence;
+    reading.meta.status = StatustoString(value.status);
+    reading.meta.delay = value.delay;
+    reading.meta.report_timestamp = value.timestamp;
+
     // Extract quaternion based on sensor type
     switch (sensor_id) {
         case SH2_ROTATION_VECTOR:
@@ -931,7 +1296,10 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.rotationVector.i;
             reading.rotation.y = value.un.rotationVector.j;
             reading.rotation.z = value.un.rotationVector.k;
-            reading.accuracy = value.un.rotationVector.accuracy;
+            reading.rotation.accuracy = value.un.rotationVector.accuracy;
+            reading.rotation.has_accuracy = true;
+            reading.has_angular_velocity = false;
+
             break;
             
         case SH2_GAME_ROTATION_VECTOR:
@@ -939,7 +1307,9 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.gameRotationVector.i;
             reading.rotation.y = value.un.gameRotationVector.j;
             reading.rotation.z = value.un.gameRotationVector.k;
-            reading.accuracy = 0;  // Game rotation doesn't have accuracy
+            reading.rotation.has_accuracy = false;
+            reading.has_angular_velocity = false;
+
             break;
             
         case SH2_GEOMAGNETIC_ROTATION_VECTOR:
@@ -947,7 +1317,10 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.geoMagRotationVector.i;
             reading.rotation.y = value.un.geoMagRotationVector.j;
             reading.rotation.z = value.un.geoMagRotationVector.k;
-            reading.accuracy = value.un.geoMagRotationVector.accuracy;
+            reading.rotation.accuracy = value.un.geoMagRotationVector.accuracy;
+            reading.rotation.has_accuracy = true;
+            reading.has_angular_velocity = false;
+
             break;
             
         case SH2_ARVR_STABILIZED_RV:
@@ -955,7 +1328,10 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.arvrStabilizedRV.i;
             reading.rotation.y = value.un.arvrStabilizedRV.j;
             reading.rotation.z = value.un.arvrStabilizedRV.k;
-            reading.accuracy = value.un.arvrStabilizedRV.accuracy;
+            reading.rotation.accuracy = value.un.arvrStabilizedRV.accuracy;
+            reading.rotation.has_accuracy = true;
+            reading.has_angular_velocity = false;
+
             break;
             
         case SH2_ARVR_STABILIZED_GRV:
@@ -963,7 +1339,8 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.arvrStabilizedGRV.i;
             reading.rotation.y = value.un.arvrStabilizedGRV.j;
             reading.rotation.z = value.un.arvrStabilizedGRV.k;
-            reading.accuracy = 0;  // Stabilized GRV doesn't have accuracy
+            reading.rotation.has_accuracy = false;
+            reading.has_angular_velocity = false;
             break;
             
         case SH2_GYRO_INTEGRATED_RV:
@@ -971,7 +1348,11 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
             reading.rotation.x = value.un.gyroIntegratedRV.i;
             reading.rotation.y = value.un.gyroIntegratedRV.j;
             reading.rotation.z = value.un.gyroIntegratedRV.k;
-            reading.accuracy = value.un.gyroIntegratedRV.angVelX;  // Using first component as placeholder
+            reading.angular_velocity.x = value.un.gyroIntegratedRV.angVelX;
+            reading.angular_velocity.y = value.un.gyroIntegratedRV.angVelY;
+            reading.angular_velocity.z = value.un.gyroIntegratedRV.angVelZ;
+            reading.rotation.has_accuracy = false;
+            reading.has_angular_velocity = true;
             break;
             
         default:
