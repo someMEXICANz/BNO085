@@ -4,24 +4,3 @@ increase thier spacing next to each other based on the vector values.
 3. To demonstate the gravity sensor a plane could a be a translucent red when not level and translucent green to indicate it is. 
 
 config_panel_->SetFrame(gui::Rect(0,24,300,600));
-
-
-Acceleration:
-Calibrated Acceleration
-Linear acceleration
-Gravity
-
-Angular Velocity:
-Calibrated gyroscope
-Uncalibrated gyroscope
-
-Magnetometer:
-Magnetic field calibrated 
-Magnetic field uncalibrated 
-
-Orientation:
-Geomagnetic Rotation Vector
-Game Rotation Vector
-Stabilized Game Rotation Vector
-Rotation Vector
-Stabilized Rotation Vector

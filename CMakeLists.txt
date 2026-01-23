@@ -33,8 +33,9 @@ add_executable(BNO085
     src/I2C_HAL.cpp
     src/I2C_Device.cpp
     src/BNO085.cpp
-    src/Visualization.cpp
-    src/GUI.cpp
+    # src/Visualization.cpp
+    # src/GUI.cpp
+    # src/OrientationVis.cpp
 )
 
 # Set include directories for executable

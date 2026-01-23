@@ -36,6 +36,24 @@ extern "C" {
 #include <iostream>
 #include <math.h> 
 
+enum ErrorType {
+
+    SH2_API,  // sh2_err.h
+    SHTP,     // Async shtp Errors
+    SH2_INTERNAL,  // sh2_ErrorRecord
+    BNO085_API  // BNO085 API errors
+};
+
+enum sh2_errorSource {
+
+    ERROR_SOURCE_MOTION_ENGINE = 1,
+    ERROR_SOURCE_MOTION_HUB = 2,
+    ERROR_SOURCE_SENSOR_HUB = 3,
+    ERROR_SOURCE_CHIP_LEVEL_EXECUTABLE = 4,
+    ERROR_SOURCE_NO_ERROR = 255
+};
+
+
 
 /**
  * @brief Convert SH2 error code to string
@@ -122,6 +140,7 @@ inline std::string StatustoString(uint8_t sh2_status) {
     }
 }
 
+
 /**
  * @brief Convert calibration status to string
  * @param status SH2 calibration status
@@ -129,19 +148,36 @@ inline std::string StatustoString(uint8_t sh2_status) {
  */
 inline std::string calibrationStatusToString(sh2_CalStatus_t status) {
     switch (status) {
-        case sh2_CalStatus_t::SH2_CAL_SUCCESS:                  return "Success";
-        case sh2_CalStatus_t::SH2_CAL_NO_ZRO:                   return "No zero-rate output detected";
-        case sh2_CalStatus_t::SH2_CAL_NO_STATIONARY_DETECTION:  return "No stationary period detected";
-        case sh2_CalStatus_t::SH2_CAL_ROTATION_OUTSIDE_SPEC:    return "Rotation outside specification";
-        case sh2_CalStatus_t::SH2_CAL_ZRO_OUTSIDE_SPEC:         return "Zero-rate output outside specification";
-        case sh2_CalStatus_t::SH2_CAL_ZGO_OUTSIDE_SPEC:         return "Zero-g output outside specification";
-        case sh2_CalStatus_t::SH2_CAL_GYRO_GAIN_OUTSIDE_SPEC:   return "Gyro gain outside specification";
-        case sh2_CalStatus_t::SH2_CAL_GYRO_PERIOD_OUTSIDE_SPEC: return "Gyro period outside specification";
-        case sh2_CalStatus_t::SH2_CAL_GYRO_DROPS_OUTSIDE_SPEC:  return "Gyro drops outside specification";
+        case SH2_CAL_SUCCESS:                  return "Success";
+        case SH2_CAL_NO_ZRO:                   return "No zero-rate output detected";
+        case SH2_CAL_NO_STATIONARY_DETECTION:  return "No stationary period detected";
+        case SH2_CAL_ROTATION_OUTSIDE_SPEC:    return "Rotation outside specification";
+        case SH2_CAL_ZRO_OUTSIDE_SPEC:         return "Zero-rate output outside specification";
+        case SH2_CAL_ZGO_OUTSIDE_SPEC:         return "Zero-g output outside specification";
+        case SH2_CAL_GYRO_GAIN_OUTSIDE_SPEC:   return "Gyro gain outside specification";
+        case SH2_CAL_GYRO_PERIOD_OUTSIDE_SPEC: return "Gyro period outside specification";
+        case SH2_CAL_GYRO_DROPS_OUTSIDE_SPEC:  return "Gyro drops outside specification";
         default:                                                return "Unknown status (" + 
                                                                         std::to_string(static_cast<int>(status)) + ")";
     }
 }
+
+
+inline std::string ShtpErrorToString(sh2_ShtpEvent_e event) {
+    switch (event) {
+        case SH2_SHTP_TX_DISCARD:           return "Data Ready";
+        case SH2_SHTP_SHORT_FRAGMENT:       return "Error";
+        case SH2_SHTP_TOO_LARGE_PAYLOADS:   return "Timeout";
+        case SH2_SHTP_BAD_RX_CHAN:          return "Zero-rate output outside specification";
+        case SH2_SHTP_BAD_TX_CHAN:          return "Zero-g output outside specification";
+        case SH2_SHTP_BAD_FRAGMENT:         return "Gyro gain outside specification";
+        case SH2_SHTP_BAD_SN:               return "Gyro period outside specification";
+        case SH2_SHTP_INTERRUPTED_PAYLOAD:  return "Gyro drops outside specification";
+        default:                              return "Unknown SHTP Error (" + 
+                                                     std::to_string(static_cast<int>(event)) + ")";
+    }
+}
+
 
 #endif // __cplusplus
 

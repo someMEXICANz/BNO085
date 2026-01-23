@@ -11,6 +11,15 @@
 // UTILITY IMPLEMENTATIONS
 // =============================================================================
 
+std::string BNO085::Metadata::printMetaData() const {
+    std::ostringstream oss;
+    oss << "Sensor ID: " << sensorIdToString(sensor_id) << std::endl;
+    oss << "Sequence: " << +sequence << std::endl;
+    oss << "Status: " << status << std::endl;
+    oss << "Timestamp: " << report_timestamp << " µs" << std::endl;
+    return oss.str();
+}
+
 float BNO085::Vector3::magnitude() const {
     return std::sqrt(x*x + y*y + z*z);
 }
@@ -49,6 +58,7 @@ std::string BNO085::Quaternion::toString() const {
     }
     return oss.str();
 }
+
 
 const std::map<sh2_SensorId_t, float> BNO085::MAX_FREQUENCIES = {
     // Orientation sensors
@@ -839,12 +849,54 @@ void BNO085::serviceLoop() {
             // Service the SH2 library - this processes incoming data
             sh2_service();
         }
+
+        // Periodically check for sensor hub errors
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                now - last_error_check_).count();
+            
+            if (elapsed >= ERROR_CHECK_INTERVAL_MS) {
+                checkSensorHubErrors();
+                last_error_check_ = now;
+            }
         
         // Small delay to prevent busy waiting
         std::this_thread::sleep_for(std::chrono::microseconds(1000));  // 1ms
     }
     
     std::cout << "BNO085 service loop ended" << std::endl;
+}
+
+void BNO085::checkSensorHubErrors() {
+    constexpr uint16_t MAX_ERRORS = 10;
+    sh2_ErrorRecord_t errors[MAX_ERRORS];
+    uint16_t numErrors = MAX_ERRORS;
+    
+    int result = sh2_getErrors(0, errors, &numErrors);  // Get all severities
+    
+    if (result == SH2_OK && numErrors > 0) {
+        std::cerr << "=== Sensor Hub Errors Detected ===" << std::endl;
+        
+        for (uint16_t i = 0; i < numErrors; i++) {
+            std::cerr << "Error " << (i+1) << "/" << numErrors << ":" << std::endl;
+            std::cerr << "  Severity: " << (int)errors[i].severity 
+                     << " (" << errors[i].severity << ")" << std::endl;
+            std::cerr << "  Sequence: " << (int)errors[i].sequence << std::endl;
+            std::cerr << "  Source: " << (int)errors[i].source 
+                     << " (" << errors[i].source << ")" << std::endl;
+            std::cerr << "  Error: " << (int)errors[i].error << std::endl;
+            std::cerr << "  Module: " << (int)errors[i].module << std::endl;
+            std::cerr << "  Code: " << (int)errors[i].code << std::endl;
+            
+            // Log to error history
+            std::ostringstream msg;
+            msg << "Hub error: src=" << (int)errors[i].source 
+                << " err=" << (int)errors[i].error 
+                << " mod=" << (int)errors[i].module 
+                << " code=" << (int)errors[i].code;
+            
+        }
+    }
 }
 
 // =============================================================================
@@ -1110,7 +1162,6 @@ void BNO085::updateAccelerationData(sh2_SensorId_t sensor_id, const sh2_SensorVa
     reading.meta.sensor_id = sensor_id;
     reading.meta.sequence = value.sequence;
     reading.meta.status = StatustoString(value.status);
-    reading.meta.delay = value.delay;
     reading.meta.report_timestamp = value.timestamp;
 
     // Extract acceleration based on sensor type
@@ -1171,7 +1222,6 @@ void BNO085::updateAngularVelocityData(sh2_SensorId_t sensor_id, const sh2_Senso
     reading.meta.sensor_id = sensor_id;
     reading.meta.sequence = value.sequence;
     reading.meta.status = StatustoString(value.status);
-    reading.meta.delay = value.delay;
     reading.meta.report_timestamp = value.timestamp;
 
     // Extract angular velocity based on sensor type
@@ -1230,7 +1280,6 @@ void BNO085::updateMagneticFieldData(sh2_SensorId_t sensor_id, const sh2_SensorV
     reading.meta.sensor_id = sensor_id;
     reading.meta.sequence = value.sequence;
     reading.meta.status = StatustoString(value.status);
-    reading.meta.delay = value.delay;
     reading.meta.report_timestamp = value.timestamp;
 
     // Extract magnetic field based on sensor type
@@ -1286,7 +1335,6 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
     reading.meta.sensor_id = sensor_id;
     reading.meta.sequence = value.sequence;
     reading.meta.status = StatustoString(value.status);
-    reading.meta.delay = value.delay;
     reading.meta.report_timestamp = value.timestamp;
 
     // Extract quaternion based on sensor type
@@ -1379,3 +1427,4 @@ void BNO085::updateOrientationData(sh2_SensorId_t sensor_id, const sh2_SensorVal
         orientation_callback_(reading);
     }
 }
+

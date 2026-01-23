@@ -52,7 +52,7 @@ public:
     // ENUMS
     // ==========================================================================
 
-    
+    // Jetson Orin Speciic 
     enum class ResetPin {
         NONE = -1,          // No hardware reset
         PIN_7  = 105,       // Physical pin 7  (PQ.05) - BEST CHOICE
@@ -81,14 +81,14 @@ public:
     struct Metadata  { //Represents Common header 
         sh2_SensorId_t sensor_id;
         uint8_t sequence;               // Sequence number
-        std::string status;                 // Calibration quality
-        uint32_t delay;                 // Report delivery delay
+        std::string status;             // Calibration quality
         uint32_t report_timestamp;      // Sensor timestamp in microseconds
 
         
         Metadata() 
-            : sensor_id(SH2_MAX_SENSOR_ID), delay(0), sequence(0), 
+            : sensor_id(SH2_MAX_SENSOR_ID), sequence(0), 
               status("UNRELIABLE"), report_timestamp(0) {}
+        std::string printMetaData() const;
     };
 
     struct SensorReading {
@@ -96,6 +96,8 @@ public:
         SensorReading() : meta() {}
 
         std::string getSensorIdString() const { return sensorIdToString(meta.sensor_id); }
+
+       
     };
 
     struct AccelerationReading : public SensorReading {
@@ -363,6 +365,8 @@ private:
     std::atomic<bool> service_running_;
     std::string last_error_;
     std::atomic<bool> reset_occurred_;
+    std::chrono::steady_clock::time_point last_error_check_;
+    static constexpr int ERROR_CHECK_INTERVAL_MS = 5000;  // Check every 5 seconds
 
     
     // Service thread
@@ -397,7 +401,8 @@ private:
     
     void setError(const std::string& error);
     void serviceLoop();
-    
+    void checkSensorHubErrors();
+
     // SH2 library callback handlers (static functions)
     static void eventCallbackWrapper(void* cookie, sh2_AsyncEvent_t* event);
     static void sensorCallbackWrapper(void* cookie, sh2_SensorEvent_t* event);
